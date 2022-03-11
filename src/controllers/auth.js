@@ -15,7 +15,7 @@ const login = async(req, res) => {
             const { password: hashPassword } = dataUser[0]
             const checkPassword = await bcrypt.compare(dataLogin.password, hashPassword)
             if (checkPassword) {
-                if (dataUser[0].confirm == 1) {
+                if (parseInt(dataUser[0].confirm) === 1) {
                     const data = { id: dataUser[0].id }
                     const token = jwt.sign(data.id, APP_SECRET)
                     return showApi.showResponse(res, 'Login Success!', { token })
