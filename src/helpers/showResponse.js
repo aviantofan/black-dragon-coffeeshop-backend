@@ -1,12 +1,17 @@
-const { APP_URL } = process.env;
+const {
+  APP_URL
+} = process.env;
 
 exports.showResponse = (res, message, result, error = null, status = 200) => {
-  console.log(error);
+  console.error(error);
   let success = true;
-  const data = { success, message };
+  const data = {
+    success,
+    message
+  };
   if (status >= 400) {
     success = false;
-    data.error = error;
+    // data.error = error;
   }
 
   if (result) {
@@ -20,7 +25,10 @@ exports.showResponseWithPagination = (res, message, result, pagination, status =
   if (status >= 400) {
     success = false;
   }
-  const data = { success, message };
+  const data = {
+    success,
+    message
+  };
   if (result) {
     data.result = result;
     data.pagination = getPagination(pagination);
