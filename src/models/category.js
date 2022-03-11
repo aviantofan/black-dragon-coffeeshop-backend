@@ -43,7 +43,7 @@ exports.getDataCategories = (data) => new Promise((resolve, reject) => {
   console.log(query.sql);
 });
 
-exports.countDataProducts = (data) => new Promise((resolve, reject) => {
+exports.countDataCategories = (data) => new Promise((resolve, reject) => {
   db.query(`SELECT COUNT(*) AS total FROM categories where name like '%${data.name}%' LIMIT ${data.limit} `, (error, result) => {
     if (error) reject(error);
     resolve(result);
