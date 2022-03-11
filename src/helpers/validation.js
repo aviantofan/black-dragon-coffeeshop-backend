@@ -1,6 +1,6 @@
-const { body, validationResult } = require('express-validator')
 const categoryModel = require('../models/category')
 const deliveryMethodModel = require('../models/deliveryMethod')
+const userModel = require('../models/user')
 const sizeModel = require('../models/size')
 
 exports.validationDataProducts = async (data) => {
@@ -84,6 +84,42 @@ exports.validationPagination = (pagination) => {
   }
   return result
 }
+
+exports.validationLogin = async (data) => {
+  let result = null
+
+  if (!data.email || data.email === '') {
+    result = { email: 'Email must be filled.' }
+  }
+  if (!data.password || data.password === '') {
+    result = { ...result, password: 'Password must be filled.' }
+  }
+  return result
+}
+
+exports.validationRegister = async (data) => {
+  let result = null
+
+  if (!data.email || data.email == '') {
+    result = { email: 'Email must be filled.' }
+  } else {
+    const resultEmail = await userModel.getDataUerByEmail(data.email)
+    console.log(resultEmail)
+    if (resultEmail.length > 0) {
+      result = { email: 'Email has already used.' }
+    }
+  }
+
+  if (!data.phone || data.phone == '') {
+    result = { ...result, fullName: 'phone must be filled.' }
+  }
+
+  if (!data.password || data.password == '') {
+    result = { ...result, password: 'Password must be filled.' }
+  }
+  return result
+}
+
 // exports.validateProduct = [
 //     body('name')
 //     .trim()
