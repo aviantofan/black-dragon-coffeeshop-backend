@@ -13,3 +13,15 @@ exports.getUserByPhone = (phone) => {
     });
   });
 };
+
+exports.insert = (data) => {
+  // provide phone is required
+  return new Promise((resolve, reject) => {
+    db.query(`INSERT INTO ${userProfileTable} SET ?`, data, (err, results) => {
+      if (err) {
+        reject(err);
+      }
+      resolve(results);
+    });
+  });
+};

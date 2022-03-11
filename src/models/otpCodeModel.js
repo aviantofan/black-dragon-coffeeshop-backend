@@ -18,3 +18,25 @@ exports.insert = (data) => {
     });
   });
 };
+
+exports.getByUserId = (id) => {
+  return new Promise((resolve, reject) => {
+    db.query(`SELECT * FROM ${otpTable} WHERE auth_user_id = ?`, id, (err, results) => {
+      if (err) {
+        reject(err);
+      }
+      resolve(results);
+    });
+  });
+};
+
+exports.delete = (id) => {
+  return new Promise((resolve, reject) => {
+    db.query(`DELETE FROM ${otpTable} WHERE id = ?`, id, (err, results) => {
+      if (err) {
+        reject(err);
+      }
+      resolve(results);
+    });
+  });
+};

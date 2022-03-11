@@ -5,6 +5,11 @@ const {
 } = require('../helpers/showResponse');
 const userModel = require('../models/userModel');
 const authModel = require('../models/authModel');
+const otpCodeModel = require('../models/otpCodeModel');
+
+const {
+  ENVIRONMENT
+} = process.env;
 
 exports.signup = async (req, res) => {
   try {
@@ -69,9 +74,78 @@ exports.signup = async (req, res) => {
 
     const result = await authModel.insert(inputedData);
 
+    if (result.affectedRows > 0) {
+      const userAuthId = result.insertId;
+
+      const inputPhone = await userModel.insert({
+        phone,
+        auth_user_id: userAuthId
+      });
+
+      if (inputPhone.affectedRows < 0) {
+        return showResponse(res, 500, {
+          message: 'Failed to register phone number'
+        });
+      }
+
+      // send otp code
+      const sendOtpCode = await sendCode(res, 'verify', userAuthId);
+
+      if (sendOtpCode) {
+        return showResponse(res, 200, {
+          message: 'Successfully registered, please check your email to verify your account'
+        });
+      }
+    }
+
     console.log(result);
 
     return showResponse(res, 'Signup Success');
+  } catch (error) {
+    console.error(error);
+    return showResponse(res, 'Unexpected error', null, error, 500);
+  }
+};
+
+const sendCode = async (res, type, userId) => {
+  try {
+    // check if user already have a code
+    const otpCode = await otpCodeModel.getByUserId(userId);
+
+    if (otpCode.length > 0) {
+      // if user recently sent a code
+      const oldCode = new Date(otpCode[0].created_at);
+      const now = new Date();
+      const divider = ENVIRONMENT === 'development' ? 1000 : (60 * 1000);
+
+      const diff = Math.round((now - oldCode) / divider);
+
+      if (diff < 5) {
+        return showResponse(res, 400, {
+          message: 'You have recently sent a code'
+        });
+      }
+
+      const deleteOtpCode = await otpCodeModel.delete(otpCode[0].id);
+
+      if (deleteOtpCode.affectedRows > 0) {
+        console.log('deleteOtpCode', deleteOtpCode);
+      }
+    };
+
+    // generate otp code
+    const newOtpCode = Math.abs(Math.floor(Math.random() * (999999 - 100000) + 100000));
+
+    // data must be an object with the following data like type, code, auth_user_id
+    const insertNewOtpCode = await otpCodeModel.insert({
+      type,
+      code: newOtpCode,
+      auth_user_id: userId
+    });
+
+    if (insertNewOtpCode.affectedRows > 0) {
+      return true;
+    }
   } catch (error) {
     console.error(error);
     return showResponse(res, 'Unexpected error', null, error, 500);
