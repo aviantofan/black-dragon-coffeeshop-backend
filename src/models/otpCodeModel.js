@@ -30,6 +30,33 @@ exports.getByUserId = (id) => {
   });
 };
 
+exports.getByData = (data, withNull = false) => {
+  const {
+    code,
+    type,
+    authUserId
+  } = data;
+
+  const query = `
+  SELECT * FROM ${otpTable} 
+  WHERE 
+  code = ? 
+  AND type = ? 
+  AND auth_user_id = ? 
+  ${!withNull ? '' : 'AND expired = 0'}
+  `;
+
+  return new Promise((resolve, reject) => {
+    db.query(query, [code, type, authUserId], (err, results) => {
+      if (err) {
+        reject(err);
+      }
+      resolve(results);
+    });
+    // console.log(ss.sql);
+  });
+};
+
 exports.delete = (id) => {
   return new Promise((resolve, reject) => {
     db.query(`DELETE FROM ${otpTable} WHERE id = ?`, id, (err, results) => {
@@ -38,5 +65,17 @@ exports.delete = (id) => {
       }
       resolve(results);
     });
+  });
+};
+
+exports.updateExpired = (id) => {
+  return new Promise((resolve, reject) => {
+    const ss = db.query(`UPDATE ${otpTable} SET expired = 1 WHERE id = ?`, id, (err, results) => {
+      if (err) {
+        reject(err);
+      }
+      resolve(results);
+    });
+    console.log(ss.sql);
   });
 };

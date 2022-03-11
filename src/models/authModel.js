@@ -18,6 +18,20 @@ exports.insert = (data) => {
   });
 };
 
+exports.update = (id, data) => {
+  // provide data as an object with the following data like email, password, role, confirm
+  console.log(data);
+  return new Promise((resolve, reject) => {
+    db.query(`UPDATE ${authUserTable} SET ? WHERE id = ${id}`, data, (err, results) => {
+      if (err) {
+        reject(err);
+      }
+      resolve(results);
+    });
+    // console.log(ss.sql, 'update');
+  });
+};
+
 exports.getUserByEmail = (email) => {
   return new Promise((resolve, reject) => {
     db.query(`SELECT * FROM ${authUserTable} WHERE email = ?`, email, (err, results) => {
