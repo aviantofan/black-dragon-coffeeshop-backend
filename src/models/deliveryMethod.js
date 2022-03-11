@@ -1,6 +1,6 @@
 const db = require('../helpers/database');
 
-exports.getDataDeliveryMethod = () => new Promise((resolve, reject) => {
+exports.getDataDeliveryMethods = () => new Promise((resolve, reject) => {
   db.query('SELECT * FROM delivery_methods', (err, res) => {
     if (err) reject(err);
     resolve(res);
