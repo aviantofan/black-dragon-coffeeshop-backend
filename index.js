@@ -29,6 +29,22 @@ app.use(function (req, res, next) {
 
 app.use('/uploads', express.static('uploads'));
 
+[
+  'get',
+  'post',
+  'put',
+  'patch',
+  'delete'
+].forEach(el => {
+  app[el]('*', (req, res) => {
+    res.status(404);
+    res.json({
+      success: false,
+      message: 'Destination not found'
+    });
+  });
+});
+
 app.listen(PORT || APP_PORT, () => {
   console.log(`App running on port ${PORT || APP_PORT}`);
 });

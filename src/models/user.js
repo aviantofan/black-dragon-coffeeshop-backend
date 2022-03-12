@@ -75,10 +75,12 @@ exports.getUserProfile = (id) => new Promise((resolve, reject) => {
     FROM user_profiles up
     LEFT JOIN auth_users au
     ON au.id = up.auth_user_id
+    WHERE up.id = ?
   `;
 
-  db.query(query, [id], (err, res) => {
+  const ss = db.query(query, [id], (err, res) => {
     if (err) reject(err);
     resolve(res);
   });
+  console.log(ss.sql);
 });
