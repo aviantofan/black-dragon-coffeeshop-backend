@@ -1,9 +1,8 @@
 /* eslint-disable no-unused-vars */
 const products = require('express').Router();
 const {
-  validateProduct
-} = require('../helpers/validation');
-// const { verifyUser } = require('../helpers/auth');
+  verifyUser
+} = require('../helpers/auth');
 
 const {
   getProducts,
@@ -14,6 +13,7 @@ const {
   deleteProduct
 } = require('../controllers/product');
 
+// products.get('/', verifyUser, getProducts);
 products.get('/', getProducts);
 products.get('/:id', getProduct);
 products.post('/', insertProduct);
