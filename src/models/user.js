@@ -10,7 +10,8 @@ exports.getDataUerByEmail = (email) => new Promise((resolve, reject) => {
 });
 
 exports.insertDataUser = (data) => new Promise((resolve, reject) => {
-  const query = db.query('insert into auth_users set email = ?, password=?, role=\'user\'', [data.email, data.password], (err, res) => {
+  // const query = db.query('insert into auth_users set email = ?, password=?, role=\'user\'', [data.email, data.password], (err, res) => {
+  db.query('insert into auth_users set email = ?, password=?, role=\'user\'', [data.email, data.password], (err, res) => {
     if (err) reject(err);
     resolve(res);
   });
