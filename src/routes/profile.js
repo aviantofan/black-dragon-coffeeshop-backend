@@ -1,7 +1,10 @@
 const profile = require('express').Router();
+// const {
+//   verifyUser
+// } = require('../helpers/auth');
 const {
   verifyUser
-} = require('../helpers/auth');
+} = require('../middlewares/auth');
 
 const {
   getProfile,
@@ -9,7 +12,7 @@ const {
   updatePatchProfile
 } = require('../controllers/profile');
 
-profile.get('/', verifyUser, getProfile);
+profile.get('/:id', verifyUser, getProfile);
 profile.put('/:id', verifyUser, updateProfile);
 profile.patch('/:id', verifyUser, updatePatchProfile);
 

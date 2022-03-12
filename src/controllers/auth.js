@@ -349,7 +349,8 @@ exports.login = async (req, res) => {
         if (parseInt(dataUser[0].confirm) === 1) {
           const data = {
             id: dataUser[0].id,
-            role: dataUser[0].role
+            role: dataUser[0].role,
+            confirm: dataUser[0].confirm
           };
           const token = jwt.sign(data, APP_SECRET);
           return showApi.showResponse(res, 'Login Success!', {

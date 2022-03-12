@@ -4,6 +4,7 @@ const showApi = require('../helpers/showResponse');
 const upload = require('../helpers/upload').single('image');
 const validation = require('../helpers/validation');
 const auth = require('../helpers/auth');
+const validator = require('validator');
 
 const {
   APP_URL
@@ -12,8 +13,16 @@ const {
 const getProfile = async (request, response) => {
   const {
     id
-  } = request.user;
-  console.log(id);
+  } = request.params;
+
+  if (!id) {
+    return showApi.showResponse(response, 'Id must be filled.', null, null, 400);
+  }
+
+  if (!validator.isInt(id)) {
+    return showApi.showResponse(response, 'Id must be a number', null, null, 400);
+  }
+
   const result = await userModel.getUserProfile(id);
   if (result.length > 0) {
     return showApi.showResponse(response, 'Detail Profile', result[0]);
