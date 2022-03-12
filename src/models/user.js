@@ -1,6 +1,6 @@
 const db = require('../helpers/database');
 
-exports.getDataUerByEmail = (email) => new Promise((resolve, reject) => {
+exports.getDataUserByEmail = (email) => new Promise((resolve, reject) => {
   const query = db.query('select * from auth_users where email=?', [email], (err, res) => {
     if (err) reject(err);
     resolve(res);
@@ -9,7 +9,7 @@ exports.getDataUerByEmail = (email) => new Promise((resolve, reject) => {
   console.log(query.sql);
 });
 
-exports.getDataUerByEmail = (email) => new Promise((resolve, reject) => {
+exports.getDataUserByEmail = (email) => new Promise((resolve, reject) => {
   // const query = db.query('select * from auth_users where email=?', [email], (err, res) => {
   db.query('select * from auth_users where email=?', [email], (err, res) => {
     if (err) reject(err);
@@ -61,7 +61,7 @@ exports.updateDataUser = (data, id) => new Promise((resolve, reject) => {
 });
 
 exports.updateDataUserProfile = (data, id) => new Promise((resolve, reject) => {
-  const query = db.query('update user_profiles set ? where auth_user_id=?', [data, id], (err, res) => {
+  const query = db.query('UPDATE user_profiles SET ? WHERE auth_user_id=?', [data, id], (err, res) => {
     if (err) reject(err);
     resolve(res);
   });
@@ -71,14 +71,16 @@ exports.updateDataUserProfile = (data, id) => new Promise((resolve, reject) => {
 // get user profile by id
 exports.getUserProfile = (id) => new Promise((resolve, reject) => {
   const query = `
-    SELECT up.display_name, up.first_name, up.last_name, up.gender, up.phone, up.address, up.image, up.birthdate
+    SELECT up.display_name, up.first_name, up.last_name, up.gender, up.phone, up.address, up.image, up.birthdate, up.created_at
     FROM user_profiles up
     LEFT JOIN auth_users au
     ON au.id = up.auth_user_id
+    WHERE au.id = ?
   `;
 
-  db.query(query, [id], (err, res) => {
+  const ss = db.query(query, [id], (err, res) => {
     if (err) reject(err);
     resolve(res);
   });
+  console.log(ss.sql);
 });

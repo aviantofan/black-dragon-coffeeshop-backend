@@ -1,16 +1,26 @@
 const profile = require('express').Router();
+// const {
+//   verifyUser
+// } = require('../helpers/auth');
 const {
   verifyUser
-} = require('../helpers/auth');
+} = require('../middlewares/auth');
 
 const {
-  getProfile,
   updateProfile,
-  updatePatchProfile
+  // updatePatchProfile,
+  getProfile,
+  updateUserProfile
+  // updateUserProfile
 } = require('../controllers/profile');
+const {
+  uploadMiddleware
+} = require('../middlewares/upload');
 
-profile.get('/', verifyUser, getProfile);
+profile.get('/:id', verifyUser, getProfile);
 profile.put('/:id', verifyUser, updateProfile);
-profile.patch('/:id', verifyUser, updatePatchProfile);
+// profile.patch('/:id', verifyUser, uploadMiddleware('image'), updatePatchProfile);
+profile.patch('/:id', verifyUser, uploadMiddleware('image'), updateUserProfile);
+// profile.patch('/:id', verifyUser, updateUserProfile);
 
 module.exports = profile;

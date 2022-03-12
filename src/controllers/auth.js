@@ -10,6 +10,9 @@ const {
 const userModel = require('../models/userModel');
 const authModel = require('../models/authModel');
 const otpCodeModel = require('../models/otpCodeModel');
+const {
+  sendMail
+} = require('../helpers/sendMail');
 
 const {
   ENVIRONMENT,
@@ -102,6 +105,13 @@ const sendCode = async (res, type, userId) => {
   try {
     // check if user already have a code
     const otpCode = await otpCodeModel.getByUserId(userId);
+    const user = await authModel.getUserById(userId);
+
+    if (user.length < 1) {
+      return showResponse(res, 'User not found', null, null, 400);
+    }
+
+    const email = user[0].email;
 
     if (otpCode.length > 0) {
       // if user recently sent a code
@@ -137,7 +147,18 @@ const sendCode = async (res, type, userId) => {
     });
 
     if (insertNewOtpCode.affectedRows > 0) {
-      return true;
+      const info = await sendMail({
+        to: email,
+        code: newOtpCode,
+        reset: type === 'reset' || false
+      });
+
+      if (info.accepted.length > 0) {
+        return true;
+      } else {
+        showResponse(res, 'Failed to send email', null, null, 400);
+        return false;
+      }
     }
   } catch (error) {
     console.error(error);
@@ -334,9 +355,10 @@ exports.login = async (req, res) => {
     email: req.body.email,
     password: req.body.password
   };
+
   const errValidation = await validation.validationLogin(dataLogin);
-  if (errValidation == null) {
-    const dataUser = await userModel.getDataUerByEmail(dataLogin.email);
+  if (errValidation === null) {
+    const dataUser = await userModel.getDataUserByEmail(dataLogin.email);
 
     if (dataUser.length > 0) {
       const {
@@ -349,7 +371,8 @@ exports.login = async (req, res) => {
         if (parseInt(dataUser[0].confirm) === 1) {
           const data = {
             id: dataUser[0].id,
-            role: dataUser[0].role
+            role: dataUser[0].role,
+            confirm: dataUser[0].confirm
           };
           const token = jwt.sign(data, APP_SECRET);
           return showApi.showResponse(res, 'Login Success!', {

@@ -1,28 +1,98 @@
 const userModel = require('../models/user');
+const modelUser = require('../models/userModel');
 const showApi = require('../helpers/showResponse');
 // const { getDefaultFlags } = require('mysql/lib/ConnectionConfig');
 const upload = require('../helpers/upload').single('image');
 const validation = require('../helpers/validation');
 const auth = require('../helpers/auth');
+const validator = require('validator');
+const {
+  requestMapping
+} = require('../helpers/requestHandler');
 
 const {
   APP_URL
 } = process.env;
 
-const getProfile = async (request, response) => {
+exports.getProfile = async (request, response) => {
   const {
     id
-  } = request.user;
-  console.log(id);
+  } = request.params;
+
+  if (!id) {
+    return showApi.showResponse(response, 'Id must be filled.', null, null, 400);
+  }
+
+  if (!validator.isInt(id)) {
+    return showApi.showResponse(response, 'Id must be a number', null, null, 400);
+  }
+
   const result = await userModel.getUserProfile(id);
   if (result.length > 0) {
-    return showApi.showResponse(response, 'Detail Profile', result[0]);
+    return showApi.showResponse(response, 'Detail Profile', showApi.dataMapping(result)[0]);
   } else {
     return showApi.showResponse(response, 'Detail Profile not found!', null, 404);
   }
 };
 
-const updateProfile = (request, response) => {
+exports.updateUserProfile = async (req, res) => {
+  try {
+    const {
+      id
+    } = req.params;
+
+    const rules = {
+      display_name: 'string',
+      first_name: 'string',
+      last_name: 'string',
+      phone: 'string',
+      address: 'string',
+      gender: 'gender',
+      birthdate: 'date'
+    };
+
+    const data = requestMapping(req.body, rules);
+
+    if (req.file) {
+      data.image = req.file.path;
+    }
+
+    if (Object.keys(data) < 1) {
+      return showApi.showResponse(res, 'You must fill if just one data', null, null, 400);
+    }
+
+    if (data.phone) {
+      const registeredPhone = await modelUser.getUserByPhone(data.phone);
+
+      if (registeredPhone[0].row > 0) {
+        return showApi.showResponse(res, 'Phone already registered', null, null, 400);
+      }
+    }
+
+    if (!id) {
+      return showApi.showResponse(res, 'Id must be filled.', null, null, 400);
+    }
+
+    if (!validator.isInt(id)) {
+      return showApi.showResponse(res, 'Id must be a number', null, null, 400);
+    }
+
+    // update profile user
+    const result = await userModel.updateDataUserProfile(data, id);
+
+    if (result.affectedRows > 0) {
+      const result = await userModel.getUserProfile(id);
+      return showApi.showResponse(res, 'Data user updated successfully!', showApi.dataMapping(result)[0]);
+    }
+
+    return showApi.showResponse(res, 'Data user failed to update!', null, null, 500);
+  } catch (error) {
+    console.error(error);
+    return showApi.showResponse(res, 'Something went wrong!', null, 500);
+  }
+};
+
+exports.updateProfile = (request, response) => {
   upload(request, response, async (errorUpload) => {
     auth.verifyUser(request, response, async () => {
       const {
@@ -117,8 +187,9 @@ const updateProfile = (request, response) => {
   });
 };
 
-const updatePatchProfile = (request, response) => {
+exports.updatePatchProfile = (request, response) => {
   upload(request, response, async (errorUpload) => {
+    console.log(request.body, 'request.body');
     // auth.verifyUser(request, response, async(error) => {
     const {
       id
@@ -130,13 +201,13 @@ const updatePatchProfile = (request, response) => {
           const dataAuth = {};
           const dataProfile = {};
 
-          const filled = ['email', 'address', 'phone', 'display_name', 'first_name', 'last_name',
-            'birth_date', 'gender', 'password'
+          const filled = ['address', 'phone', 'display_name', 'first_name', 'last_name',
+            'birthdate', 'gender', 'image'
           ];
 
           filled.forEach((value) => {
             if (request.body[value]) {
-              if (value === 'email' || value === 'password') {
+              if (value === 'email') {
                 dataAuth[value] = request.body[value];
               } else {
                 if (request.file) {
@@ -151,6 +222,7 @@ const updatePatchProfile = (request, response) => {
           try {
             const updateUser = await userModel.updateDataUser(dataAuth, id);
             if (updateUser.affectedRows > 0) {
+              console.log(dataProfile);
               const updateUserProfile = await userModel.updateDataUserProfile(dataProfile, id);
               if (updateUserProfile.affectedRows > 0) {
                 const result = await userModel.getUserProfile(id);
@@ -175,10 +247,4 @@ const updatePatchProfile = (request, response) => {
       return showApi.showResponse(response, 'Id must be filled.', null, null, 400);
     }
   });
-};
-
-module.exports = {
-  getProfile,
-  updateProfile,
-  updatePatchProfile
 };

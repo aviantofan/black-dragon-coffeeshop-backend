@@ -2,10 +2,13 @@ const cloudinary = require('cloudinary').v2;
 const {
   CloudinaryStorage
 } = require('multer-storage-cloudinary');
+const multer = require('multer');
 const {
   nanoid
 } = require('nanoid');
-const multer = require('multer');
+const {
+  showResponse
+} = require('../helpers/showResponse');
 
 const {
   CLOUD_NAME,
@@ -49,25 +52,32 @@ if (ENVIRONMENT === 'production') {
   });
 }
 
-const fileFilter = (req, file, cb) => {
-  const typeImage = [
-    'image/jpeg',
-    'image/png',
-    'image/gif'
-  ];
+const filFilter = (req, file, cb) => {
+  const fileTypes = /jpeg|jpg|png|gif/;
 
-  if (!typeImage.includes(file.mimetype)) {
-    cb(new Error('Type image must be .jpg/.png/.gif'), false);
-  } else {
+  if (fileTypes.test(file.mimetype)) {
     cb(null, true);
+  } else {
+    cb(new Error('File type not supported'), false);
   }
 };
-const upload = multer({
-  storage: storage,
-  fileFilter,
-  limits: {
-    fileSize: 2097152 // 2MB
-  }
-});
 
-module.exports = upload;
+exports.uploadMiddleware = (key, maxZize = null) => {
+  const upload = multer({
+    storage,
+    fileFilter: filFilter,
+    limits: {
+      fileSize: maxZize || 2097152 // max 2MB
+    }
+  }).single(key);
+
+  // return as upload middleware
+  return (req, res, next) => {
+    upload(req, res, (err) => {
+      if (err) {
+        return showResponse(res, err.message, null, null, 400);
+      }
+      next();
+    });
+  };
+};
