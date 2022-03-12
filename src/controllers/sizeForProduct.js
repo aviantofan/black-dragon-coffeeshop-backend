@@ -8,7 +8,6 @@ const { request } = require('express')
 const { APP_URL } = process.env
 
 const getSizeForProductsByIdProduct = async(request, response) => {
-    console.log("masuk....")
     const { idProduct } = request.params
 
     if (idProduct) {
