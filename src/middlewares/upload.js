@@ -32,7 +32,11 @@ if (ENVIRONMENT === 'production') {
     params: {
       folder: 'black-dragon/uploads',
       format: async (req, file) => 'jpg',
-      public_id: async (req, file) => nanoid(10)
+      public_id: async (req, file) => {
+        const currentDate = Date.now();
+        const fileName = String(nanoid(10)) + '-' + currentDate;
+        return fileName;
+      }
     }
   });
 } else {

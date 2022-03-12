@@ -133,7 +133,7 @@ exports.dataMapping = (data) => {
   data.map(el => {
     if (el.image !== null) {
       const path = el.image.replace(/\\/g, '/');
-      if (ENVIRONMENT === 'development') {
+      if (ENVIRONMENT !== 'production') {
         el.image = `${APP_URL}/${path}`;
       }
     } else {
