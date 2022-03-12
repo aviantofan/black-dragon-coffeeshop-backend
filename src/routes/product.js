@@ -9,10 +9,12 @@ const {
   insertProduct,
   updateProduct,
   updatePatchProduct,
-  deleteProduct
+  deleteProduct,
+  getFilter
 } = require('../controllers/product')
 
 products.get('/', getProducts)
+products.get('/filter', getFilter)
 products.get('/:id', getProduct)
 products.post('/', insertProduct)
 products.put('/:id', updateProduct)
