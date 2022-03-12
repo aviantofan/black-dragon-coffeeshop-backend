@@ -151,6 +151,34 @@ exports.validationSizeForProduct = async(data) => {
     return result
 }
 
+exports.validationProductDeliveryMethod = async(data) => {
+    let result = null
+    console.log(data.product_id)
+
+    if (validator.isEmpty(data.product_id)) {
+        result = { product_id: 'id product must be filled.' }
+    } else if (!validator.isNumeric(data.product_id)) {
+        result = { product_id: 'id product must be a number.' }
+    } else {
+        const getDataProduct = await productModel.getDataProduct(data.product_id)
+        if (getDataProduct.length === 0) {
+            result = { product_id: 'Data product not found.' }
+        }
+    }
+
+    if (validator.isEmpty(data.delivery_method_id)) {
+        result = {...result, delivery_method_id: 'id delivery method must be filled.' }
+    } else if (!validator.isNumeric(data.delivery_method_id)) {
+        result = {...result, delivery_method_id: 'Id delivery method must be a number.' }
+    } else {
+        const dataProductDeliveryMethod = await deliveryMethodModel.getDataDeliveryMethod(data.delivery_method_id)
+        if (dataProductDeliveryMethod.length === 0) {
+            result = {...result, delivery_method_id: 'Data delivery method not found.' }
+        }
+    }
+    return result
+}
+
 // exports.validateProduct = [
 //     body('name')
 //     .trim()
