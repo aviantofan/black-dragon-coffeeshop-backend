@@ -120,3 +120,17 @@ exports.pageInfoCreator = (totalDataCount, url, values) => {
     lastPages: totalPages
   });
 };
+
+exports.dataMapping = (data) => {
+  data.map(el => {
+    if (el.image !== null) {
+      const path = el.image.replace(/\\/g, '/');
+      el.image = `${APP_URL}/${path}`;
+    } else {
+      el.image = null;
+    }
+    return el;
+  });
+
+  return data;
+};
