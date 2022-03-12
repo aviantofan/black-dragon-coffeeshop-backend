@@ -95,7 +95,7 @@ const getPromotionDeliveryMethod = async (request, response) => {
   }
 }
 
-const updatePromotionDeliveryMethod = async (request, response) => {
+const updatePatchPromotionDeliveryMethod = async (request, response) => {
   const { id } = request.params
 
   if (id) {
@@ -103,15 +103,8 @@ const updatePromotionDeliveryMethod = async (request, response) => {
       const dataPromotionDeliveryMethod = await promotionDeliveryMethodModel.getDataPromotionDeliveryMethod(id)
       if (dataPromotionDeliveryMethod.length > 0) {
         const data = {
-          name: request.body.name,
-          price: request.body.price,
-          description: request.body.description,
-          stocks: request.body.stocks,
-          delivery_time_start: request.body.deliveryTimeStart,
-          delivery_time_end: request.body.deliveryTimeEnd,
-          category_id: request.body.categoryId,
-          delivery_method_id: request.body.deliveryMethodId,
-          size_id: request.body.sizeId
+          promotion_id: parseInt(request.body.promotion_id),
+          delivery_method_id: parseInt(request.body.delivery_method_id)
         }
 
         const errValidation = await validation.validationDataPromotionDeliveryMethods(data)
@@ -168,4 +161,4 @@ const deletePromotionDeliveryMethod = async (request, response) => {
   }
 }
 
-module.exports = { insertPromotionDeliveryMethod, getPromotionDeliveryMethods, getPromotionDeliveryMethod, updatePromotionDeliveryMethod, deletePromotionDeliveryMethod }
+module.exports = { insertPromotionDeliveryMethod, getPromotionDeliveryMethods, getPromotionDeliveryMethod, updatePatchPromotionDeliveryMethod, deletePromotionDeliveryMethod }
