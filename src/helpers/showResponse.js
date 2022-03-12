@@ -48,7 +48,7 @@ exports.showResponseWithPagination = (res, message, result, pagination, status =
 const getPagination = (pagination) => {
   console.log(pagination);
   const last = Math.ceil(pagination.total / pagination.limit);
-  const url = `${APP_URL}/${pagination.route}&page=`;
+  const url = `http://${APP_URL}/${pagination.route}&page=`;
   return {
     prev: pagination.page > 1 ? `${url}${pagination.page - 1}` : null,
     next: pagination.page < last ? `${url}${pagination.page + 1}` : null,

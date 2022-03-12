@@ -54,20 +54,6 @@ exports.insertDataProduct = (data) => new Promise((resolve, reject) => {
   });
 });
 
-exports.insertDataProductSize = (data) => new Promise((resolve, reject) => {
-  db.query('insert into sizes_for_product set ?', [data], (err, res) => {
-    if (err) reject(err);
-    resolve(res);
-  });
-});
-
-exports.insertDataProductDeliveryMethod = (data) => new Promise((resolve, reject) => {
-  db.query('insert into product_delivery_methods set ?', [data], (err, res) => {
-    if (err) reject(err);
-    resolve(res);
-  });
-});
-
 exports.updateDataProduct = (data, id) => new Promise((resolve, reject) => {
   db.query('update products set ? where id=?', [data, id], (err, res) => {
     if (err) reject(err);
@@ -75,22 +61,22 @@ exports.updateDataProduct = (data, id) => new Promise((resolve, reject) => {
   });
 });
 
-exports.updateDataProductSize = (data, id) => new Promise((resolve, reject) => {
-  console.log(data);
-  const query = db.query('update sizes_for_product set ? where product_id=?', [data, id], (err, res) => {
-    if (err) reject(err);
-    resolve(res);
-  });
+// exports.updateDataProductSize = (data, id) => new Promise((resolve, reject) => {
+//   console.log(data);
+//   const query = db.query('update sizes_for_product set ? where product_id=?', [data, id], (err, res) => {
+//     if (err) reject(err);
+//     resolve(res);
+//   });
 
-  console.log(query.sql);
-});
+//   console.log(query.sql);
+// });
 
-exports.updateDataProductDeliveryMethod = (data, id) => new Promise((resolve, reject) => {
-  db.query('update product_delivery_methods set ? where product_id=?', [data, id], (err, res) => {
-    if (err) reject(err);
-    resolve(res);
-  });
-});
+// exports.updateDataProductDeliveryMethod = (data, id) => new Promise((resolve, reject) => {
+//   db.query('update product_delivery_methods set ? where product_id=?', [data, id], (err, res) => {
+//     if (err) reject(err);
+//     resolve(res);
+//   });
+// });
 
 exports.deleteDataProduct = (id) => new Promise((resolve, reject) => {
   db.query('delete from products where id=?', [id], (err, res) => {
@@ -99,20 +85,20 @@ exports.deleteDataProduct = (id) => new Promise((resolve, reject) => {
   });
 });
 
-exports.deleteDataProductSize = (id) => new Promise((resolve, reject) => {
-  const query = db.query('delete from sizes_for_product where product_id=?', [id], (err, res) => {
-    if (err) reject(err);
-    resolve(res);
-  });
-  console.log(query.sql);
-});
+// exports.deleteDataProductSize = (id) => new Promise((resolve, reject) => {
+//   const query = db.query('delete from sizes_for_product where product_id=?', [id], (err, res) => {
+//     if (err) reject(err);
+//     resolve(res);
+//   });
+//   console.log(query.sql);
+// });
 
-exports.deleteDataProductDeliveryMethod = (id) => new Promise((resolve, reject) => {
-  db.query('delete from product_delivery_methods where product_id=?', [id], (err, res) => {
-    if (err) reject(err);
-    resolve(res);
-  });
-});
+// exports.deleteDataProductDeliveryMethod = (id) => new Promise((resolve, reject) => {
+//   db.query('delete from product_delivery_methods where product_id=?', [id], (err, res) => {
+//     if (err) reject(err);
+//     resolve(res);
+//   });
+// });
 
 exports.getFilter = (data) => new Promise((resolve, reject) => {
   const filled = ['price', 'stocks', 'time', 'size_id', 'delivery_method_id'];
@@ -123,7 +109,7 @@ exports.getFilter = (data) => new Promise((resolve, reject) => {
     }
   });
 
-  const query = db.query(`SELECT p.name AS productName, p.price, s.name AS size, dm.name AS delivery FROM sizes_for_product sf 
+  const query = db.query(`SELECT p.name AS productName, s.extra_price AS price, s.name AS size, dm.name AS delivery FROM sizes_for_product sf 
   JOIN products p ON sf.product_id = p.id JOIN sizes s ON sf.size_id = s.id
   JOIN product_delivery_methods pd ON pd.product_id = p.id 
   JOIN delivery_methods dm ON pd.delivery_method_id = dm.id

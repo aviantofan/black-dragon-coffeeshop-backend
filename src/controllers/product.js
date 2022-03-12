@@ -1,7 +1,7 @@
 const productModel = require('../models/product');
 const showApi = require('../helpers/showResponse');
 const upload = require('../helpers/upload').single('image');
-const auth = require('../helpers/auth');
+// const auth = require('../helpers/auth');
 const validation = require('../helpers/validation');
 
 const {
@@ -179,6 +179,27 @@ exports.insertProduct = async (request, response) => {
         stocks: request.body.stocks,
         delivery_time_start: request.body.deliveryTimeStart,
         delivery_time_end: request.body.deliveryTimeEnd,
+        category_id: request.body.categoryId
+      };
+      // const resultDataProduct = await productModel.insertDataProduct(dataProduct);
+      const resultDataProduct = await productModel.insertDataProduct(dataProduct);
+      let success = false;
+      if (resultDataProduct.affectedRows > 0) {
+        success = true;
+      }
+      if (success) {
+        const result = await productModel.getDataProduct(resultDataProduct.insertId);
+        showApi.showResponse(response, 'Data product created successfully!', result[0]);
+      } else {
+        showApi.showResponse(response, 'Data product failed to create!', null, null, 500);
+      }
+    } else {
+      showApi.showResponse(response, 'Data product not valid', null, errValidation, 400);
+    }
+  });
+};
+
+const updateProduct = (request, response) => {
         category_id: request.body.categoryId,
         delivery_method_id: request.body.deliveryMethodId,
         size_id: request.body.sizeId

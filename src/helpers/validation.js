@@ -1,7 +1,4 @@
-const {
-  body,
-  validationResult
-} = require('express-validator');
+const { body, validationResult } = require('express-validator');
 const categoryModel = require('../models/category');
 const deliveryMethodModel = require('../models/deliveryMethod');
 const sizeModel = require('../models/size');
@@ -223,7 +220,7 @@ exports.validationLogin = async (data) => {
       price: 'Price must be must be greater than 0.'
     };
   }
-
+  
   if (data.stocks === null || data.stocks === '') {
     result = {
       ...result,
@@ -240,7 +237,7 @@ exports.validationLogin = async (data) => {
       stocks: 'Stock must be must be greater than 0.'
     };
   }
-
+  
   if (data.delivery_time_start === null || data.delivery_time_start === '') {
     result = {
       ...result,
