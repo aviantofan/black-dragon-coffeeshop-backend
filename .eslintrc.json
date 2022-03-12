@@ -12,5 +12,8 @@
     },
     "rules": {
       "semi": ["error", "always"],
+      "eqeqeq": ["error", "always"],
+      "no-unused-vars": ["error", { "args": "none" }],
+      "quotes": ["error", "single"]
     }
 }
