@@ -1,8 +1,9 @@
 /* eslint-disable no-unused-vars */
 const products = require('express').Router();
 const {
-  verifyUser
-} = require('../helpers/auth');
+  validateProduct
+} = require('../helpers/validation');
+// const { verifyUser } = require('../helpers/auth');
 
 const {
   getProducts,
