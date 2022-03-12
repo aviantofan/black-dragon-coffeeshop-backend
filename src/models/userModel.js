@@ -1,6 +1,7 @@
 const db = require('../config/db');
 const {
-  userProfileTable
+  userProfileTable,
+  authUserTable
 } = require('../helpers/constants');
 
 exports.getUserByPhone = (phone) => {
@@ -25,3 +26,12 @@ exports.insert = (data) => {
     });
   });
 };
+
+exports.getDataUerByEmail = (email) => new Promise((resolve, reject) => {
+  const query = db.query(`select * from ${authUserTable} where email=?`, [email], (err, res) => {
+    if (err) reject(err);
+    resolve(res);
+  });
+
+  console.log(query.sql);
+});

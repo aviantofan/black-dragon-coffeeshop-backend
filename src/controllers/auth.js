@@ -1,5 +1,9 @@
+const jwt = require('jsonwebtoken');
+const showApi = require('../helpers/showResponse');
+const validation = require('../helpers/validation');
 const validator = require('validator');
 const bcrypt = require('bcrypt');
+
 const {
   showResponse
 } = require('../helpers/showResponse');
@@ -8,7 +12,8 @@ const authModel = require('../models/authModel');
 const otpCodeModel = require('../models/otpCodeModel');
 
 const {
-  ENVIRONMENT
+  ENVIRONMENT,
+  APP_SECRET
 } = process.env;
 
 exports.signup = async (req, res) => {
@@ -19,41 +24,35 @@ exports.signup = async (req, res) => {
       phone
     } = req.body;
 
+    if (!email || !password !== !phone) {
+      return showResponse(res, 'You must provide email, password and phone', null, null, 400);
+    }
+
     if (!validator.isEmail(email)) {
-      return showResponse(res, 400, {
-        message: 'Email is not valid'
-      });
+      return showResponse(res, 'Email is not valid', null, null, 400);
     }
 
     const passwordRules = {
       minLength: 6
     };
     if (!validator.isStrongPassword(password, passwordRules)) {
-      return showResponse(res, 400, {
-        message: 'Password must be at least 6 characters long, contain at least 1 lowercase letter, 1 uppercase letter, 1 number and 1 symbol'
-      });
+      return showResponse(res, 'Password is not strong enough', null, null, 400);
     }
 
     if (!validator.isMobilePhone(phone, 'id-ID')) {
-      return showResponse(res, 400, {
-        message: 'Phone number is not valid'
-      });
+      return showResponse(res, 'Phone is not valid', null, null, 400);
     }
 
     const registeredPhone = await userModel.getUserByPhone(phone);
 
     if (registeredPhone[0].row > 0) {
-      return showResponse(res, 400, {
-        message: 'Phone number is already registered'
-      });
+      return showResponse(res, 'Phone is already registered', null, null, 400);
     }
 
     const registeredEmail = await authModel.getUserByEmail(email);
 
     if (registeredEmail.length > 0) {
-      return showResponse(res, 400, {
-        message: 'Email is already registered'
-      });
+      return showResponse(res, 'Email is already registered', null, null, 400);
     }
 
     const salt = bcrypt.genSaltSync(10);
@@ -79,24 +78,20 @@ exports.signup = async (req, res) => {
       });
 
       if (inputPhone.affectedRows < 0) {
-        return showResponse(res, 500, {
-          message: 'Failed to register phone number'
-        });
+        return showResponse(res, 'Failed to insert phone', null, null, 400);
       }
 
       // send otp code
       const sendOtpCode = await sendCode(res, 'verify', userAuthId);
 
       if (sendOtpCode) {
-        return showResponse(res, 200, {
-          message: 'Successfully registered, please check your email to verify your account'
-        });
+        return showResponse(res, 'Successfully registered, please check your email to verify your account', null, null, 200);
       }
     }
 
     console.log(result);
 
-    return showResponse(res, 'Signup Success');
+    return showResponse(res, 'Signup Success', null, null, 200);
   } catch (error) {
     console.error(error);
     return showResponse(res, 'Unexpected error', null, error, 500);
@@ -118,18 +113,14 @@ const sendCode = async (res, type, userId) => {
       const diff = Math.round((now - oldCode) / divider);
 
       if (diff < 5) {
-        showResponse(res, 400, {
-          message: 'You have recently sent a code'
-        });
+        showResponse(res, 'You have recently sent a code, please wait for a minute', null, null, 400);
         return false;
       } else {
         const deleteOtpCode = await otpCodeModel.delete(otpCode[0].id);
 
         if (deleteOtpCode.affectedRows < 1) {
           // console.log('deleteOtpCode', deleteOtpCode);
-          showResponse(res, 400, {
-            message: 'Failed to send code'
-          });
+          showResponse(res, 'Failed to send code', null, null, 400);
           return false;
         }
       }
@@ -169,21 +160,15 @@ const resetPassword = async (res, data) => {
     };
 
     if (!password) {
-      return showResponse(res, 400, {
-        message: 'You must provide a password if you want to reset your password'
-      });
+      return showResponse(res, 'Password is required', null, null, 400);
     }
 
     if (!validator.isLength(password, passwordRules)) {
-      return showResponse(res, 400, {
-        message: 'Password must be at least 6 characters long'
-      });
+      return showResponse(res, 'Password must be between 6 and 12 characters', null, null, 400);
     }
 
     if (password !== confirmPassword) {
-      return showResponse(res, 400, {
-        message: 'Password and confirm password does not match'
-      });
+      return showResponse(res, 'Password and confirm password must be the same', null, null, 400);
     }
 
     const isCodeExist = await otpCodeModel.getByData({
@@ -193,23 +178,17 @@ const resetPassword = async (res, data) => {
     });
 
     if (isCodeExist.length < 1) {
-      return showResponse(res, 400, {
-        message: 'Code is not valid'
-      });
+      return showResponse(res, 'Code is not valid', null, null, 400);
     }
 
     if (Number(isCodeExist[0].expired)) {
-      return showResponse(res, 400, {
-        message: 'Code is expired'
-      });
+      return showResponse(res, 'Code is expired', null, null, 400);
     }
 
     const setCodeExpired = await otpCodeModel.updateExpired(isCodeExist[0].id);
 
     if (setCodeExpired.affectedRows < 1) {
-      return showResponse(res, 400, {
-        message: 'Failed to reset password' // failed to update expired
-      });
+      return showResponse(res, 'Failed to verify account', null, null, 400);
     }
 
     // generate new password
@@ -222,12 +201,10 @@ const resetPassword = async (res, data) => {
     });
 
     if (updatePassword.affectedRows < 1) {
-      return showResponse(res, 400, {
-        message: 'Failed to reset password'
-      });
+      return showResponse(res, 'Failed to update password', null, null, 400);
     }
 
-    return showResponse(res, 'Successfully reset password');
+    return showResponse(res, 'Successfully reset password', null, null, 200);
   } catch (error) {
     console.error(error);
     return showResponse(res, 'Unexpected error', null, error, 500);
@@ -248,23 +225,17 @@ const verifyAccount = async (res, data) => {
     }, true);
 
     if (isCodeExist.length < 1) {
-      return showResponse(res, 400, {
-        message: 'Code is not valid'
-      });
+      return showResponse(res, 'Code is not valid', null, null, 400);
     }
 
     if (Number(isCodeExist[0].expired)) {
-      return showResponse(res, 400, {
-        message: 'Code is expired'
-      });
+      return showResponse(res, 'Code is expired', null, null, 400);
     }
 
     const setCodeExpired = await otpCodeModel.updateExpired(isCodeExist[0].id);
 
     if (setCodeExpired.affectedRows < 1) {
-      return showResponse(res, 400, {
-        message: 'Failed to verify account'
-      });
+      return showResponse(res, 'Failed to verify account', null, null, 400);
     }
 
     const updateConfirm = await authModel.update(userId, {
@@ -274,9 +245,7 @@ const verifyAccount = async (res, data) => {
     console.log();
 
     if (updateConfirm.affectedRows < 1) {
-      return showResponse(res, 400, {
-        message: 'Failed to verify account'
-      });
+      return showResponse(res, 'Failed to verify account', null, null, 400);
     }
 
     return showResponse(res, 'Successfully verified account');
@@ -312,9 +281,7 @@ exports.verifyReset = async (req, res) => {
     const registeredEmail = await authModel.getUserByEmail(email);
 
     if (registeredEmail.length < 1) {
-      return showResponse(res, 400, {
-        message: 'Email is not registered'
-      });
+      return showResponse(res, 'Email is not registered', null, null, 400);
     }
 
     const user = registeredEmail[0];
@@ -335,9 +302,7 @@ exports.verifyReset = async (req, res) => {
       const sendedCode = await sendCode(res, 'reset', user.id);
       console.log(sendedCode);
       if (sendedCode) {
-        return showResponse(res, 200, {
-          message: 'Code to reset password has been sent to your email'
-        });
+        return showResponse(res, 'Successfully sent code to reset password', null, null, 200);
       }
     }
 
@@ -353,9 +318,7 @@ exports.verifyReset = async (req, res) => {
     if (!Number(user.confirm) && !data.code) {
       const sendedCode = await sendCode(res, 'verify', user.id);
       if (sendedCode) {
-        return showResponse(res, 200, {
-          message: 'Code to verify account has been sent to your email'
-        });
+        return showResponse(res, 'Successfully sent code to verify account', null, null, 200);
       }
     }
   } catch (error) {
@@ -363,15 +326,8 @@ exports.verifyReset = async (req, res) => {
     return showResponse(res, 'Unexpected error', null, error, 500);
   }
 };
-/* eslint-disable no-unused-vars */
+
 // const userModel = require('../models/user')
-// const bcrypt = require('bcrypt')
-const jwt = require('jsonwebtoken');
-const showApi = require('../helpers/showResponse');
-const validation = require('../helpers/validation');
-const {
-  APP_SECRET
-} = process.env;
 
 exports.login = async (req, res) => {
   const dataLogin = {
@@ -381,22 +337,27 @@ exports.login = async (req, res) => {
   const errValidation = await validation.validationLogin(dataLogin);
   if (errValidation == null) {
     const dataUser = await userModel.getDataUerByEmail(dataLogin.email);
+
     if (dataUser.length > 0) {
       const {
         password: hashPassword
       } = dataUser[0];
+
       const checkPassword = await bcrypt.compare(dataLogin.password, hashPassword);
+      console.log(checkPassword);
       if (checkPassword) {
         if (parseInt(dataUser[0].confirm) === 1) {
           const data = {
-            id: dataUser[0].id
+            id: dataUser[0].id,
+            role: dataUser[0].role
           };
-          const token = jwt.sign(data.id, APP_SECRET);
+          const token = jwt.sign(data, APP_SECRET);
           return showApi.showResponse(res, 'Login Success!', {
+            id: dataUser[0].id,
             token
           });
         } else {
-          return showApi.showResponse(res, 'User not authorized', null, null, 404);
+          return showApi.showResponse(res, 'You must verify first!', null, null, 404);
         }
       } else {
         return showApi.showResponse(res, 'Wrong email and password!', null, null, 400);
@@ -409,59 +370,59 @@ exports.login = async (req, res) => {
   }
 };
 
-const register = async (req, res) => {
-  const {
-    email,
-    password,
-    phone
-  } = req.body;
-  const data = {
-    email,
-    password,
-    phone
-  };
-  const errValidation = await validation.validationRegister(data);
-  if (errValidation == null) {
-    const salt = await bcrypt.genSalt(8);
-    const hashPassword = await bcrypt.hash(data.password, salt);
-    data.password = hashPassword;
-    try {
-      const resultDataUser = await userModel.insertDataUser(data);
-      if (resultDataUser.affectedRows > 0) {
-        const resultDataRegister = await userModel.insertDataUserProfile(data);
-        if (resultDataRegister.affectedRows > 0) {
-          return showApi.showResponse(res, 'Registration Success!');
-        }
+// const register = async (req, res) => {
+//   const {
+//     email,
+//     password,
+//     phone
+//   } = req.body;
+//   const data = {
+//     email,
+//     password,
+//     phone
+//   };
+//   const errValidation = await validation.validationRegister(data);
+//   if (errValidation == null) {
+//     const salt = await bcrypt.genSalt(8);
+//     const hashPassword = await bcrypt.hash(data.password, salt);
+//     data.password = hashPassword;
+//     try {
+//       const resultDataUser = await userModel.insertDataUser(data);
+//       if (resultDataUser.affectedRows > 0) {
+//         const resultDataRegister = await userModel.insertDataUserProfile(data);
+//         if (resultDataRegister.affectedRows > 0) {
+//           return showApi.showResponse(res, 'Registration Success!');
+//         }
 
-        // let randomCode = Math.round(Math.random() * (9999999 - 100000) - 100000);
-        // if (randomCode < 0) {
-        //     randomCode = (randomCode * -1);
-        // }
-        // const reset = await emailVerificationModel.insertEmailVerification(resultRegister.insertId, randomCode);
-        // if (reset.affectedRows >= 1) {
-        //     await mail.sendMail({
-        //         from: APP_EMAIL,
-        //         to: email,
-        //         subject: 'Email Verification',
-        //         text: String(randomCode),
-        //         html: `This is your email verification code : <b>${randomCode}</b>`
-        //     });
-        //     dataJson = {...dataJson, message: "Email Verification has been sent to your email!" };
-        //     return showApi.showSuccess(dataJson);
-        // } else {
-        //     dataJson = {...dataJson, message: "Email Verification failed to send." };
-        //     return showApi.showSuccess(dataJson);
-        // }
-      } else {
-        return showApi.showResponse(res, 'Registration failed!', null, null, 500);
-      }
-    } catch (error) {
-      return showApi.showResponse(res, 'Registration failed!', null, error.message, 500);
-    }
-  } else {
-    return showApi.showResponse(res, 'Data not valid.', errValidation, 400);
-  }
-};
+//         // let randomCode = Math.round(Math.random() * (9999999 - 100000) - 100000);
+//         // if (randomCode < 0) {
+//         //     randomCode = (randomCode * -1);
+//         // }
+//         // const reset = await emailVerificationModel.insertEmailVerification(resultRegister.insertId, randomCode);
+//         // if (reset.affectedRows >= 1) {
+//         //     await mail.sendMail({
+//         //         from: APP_EMAIL,
+//         //         to: email,
+//         //         subject: 'Email Verification',
+//         //         text: String(randomCode),
+//         //         html: `This is your email verification code : <b>${randomCode}</b>`
+//         //     });
+//         //     dataJson = {...dataJson, message: "Email Verification has been sent to your email!" };
+//         //     return showApi.showSuccess(dataJson);
+//         // } else {
+//         //     dataJson = {...dataJson, message: "Email Verification failed to send." };
+//         //     return showApi.showSuccess(dataJson);
+//         // }
+//       } else {
+//         return showApi.showResponse(res, 'Registration failed!', null, null, 500);
+//       }
+//     } catch (error) {
+//       return showApi.showResponse(res, 'Registration failed!', null, error.message, 500);
+//     }
+//   } else {
+//     return showApi.showResponse(res, 'Data not valid.', errValidation, 400);
+//   }
+// };
 
 // const emailVerification = async(req, res) => {
 //     const { email, code, password } = req.body;
