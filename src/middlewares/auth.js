@@ -57,7 +57,7 @@ exports.verifyUser = (req, res, next) => {
   try {
     const verifyUser = verify(req, res);
 
-    console.log(verifyUser);
+    // console.log(verifyUser);
 
     // check if user is confirmed
     if (!verifyUser.confirm) {
