@@ -1,5 +1,5 @@
 
-const promotionSizes = require('express').Router()
+const promotionSizes = require('express').Router();
 
 const {
   insertPromotionSize,
@@ -7,12 +7,12 @@ const {
   getPromotionSize,
   updatePatchPromotionSize,
   deletePromotionSize
-} = require('../controllers/promotionSize')
+} = require('../controllers/promotionSize');
 
-promotionSizes.post('/', insertPromotionSize)
-promotionSizes.get('/', getPromotionSizes)
-promotionSizes.get('/:id', getPromotionSize)
-promotionSizes.patch('/:id', updatePatchPromotionSize)
-promotionSizes.delete('/:id', deletePromotionSize)
+promotionSizes.post('/', insertPromotionSize);
+promotionSizes.get('/', getPromotionSizes);
+promotionSizes.get('/:id', getPromotionSize);
+promotionSizes.patch('/:id', updatePatchPromotionSize);
+promotionSizes.delete('/:id', deletePromotionSize);
 
-module.exports = promotionSizes
+module.exports = promotionSizes;

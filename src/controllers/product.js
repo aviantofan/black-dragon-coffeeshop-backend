@@ -15,40 +15,40 @@ exports.getFilterData = async (request, response) => {
     limit,
     sort,
     order
-  } = request.query
-  name = name || ''
-  sort = sort || 'p.created_at'
-  const filledFilter = ['size_id', 'delivery_method_id']
-  const filter = {}
-  page = ((page != null && page !== '') ? parseInt(page) : 1)
-  limit = ((limit != null && limit !== '') ? parseInt(limit) : 5)
-  order = order || 'desc'
+  } = request.query;
+  name = name || '';
+  sort = sort || 'p.created_at';
+  const filledFilter = ['size_id', 'delivery_method_id'];
+  const filter = {};
+  page = ((page != null && page !== '') ? parseInt(page) : 1);
+  limit = ((limit != null && limit !== '') ? parseInt(limit) : 5);
+  order = order || 'desc';
   let pagination = {
     page,
     limit
-  }
-  let route = 'products?'
-  let searchParam = ''
+  };
+  let route = 'products?';
+  let searchParam = '';
   if (name) {
-    searchParam = `name=${name}`
+    searchParam = `name=${name}`;
   }
 
   filledFilter.forEach((item) => {
     if (request.query[item]) {
-      filter[item] = request.query[item]
+      filter[item] = request.query[item];
       if (searchParam === '') {
-        searchParam += `${item}=${filter[item]}`
+        searchParam += `${item}=${filter[item]}`;
       } else {
-        searchParam += `&${item}=${filter[item]}`
+        searchParam += `&${item}=${filter[item]}`;
       }
     }
-  })
-  route += searchParam
+  });
+  route += searchParam;
 
-  const errValidation = await validation.validationPagination(pagination)
+  const errValidation = await validation.validationPagination(pagination);
   if (errValidation == null) {
-    const offset = (page - 1) * limit
-    console.log(offset)
+    const offset = (page - 1) * limit;
+    console.log(offset);
     const data = {
       name,
       filter,
@@ -56,31 +56,31 @@ exports.getFilterData = async (request, response) => {
       offset,
       sort,
       order
-    }
-    const dataFilter = await productModel.getFilter(data)
+    };
+    const dataFilter = await productModel.getFilter(data);
 
     if (dataFilter.length > 0) {
-      const result = await productModel.countFilter(data)
+      const result = await productModel.countFilter(data);
       try {
         const {
           total
-        } = result[0]
+        } = result[0];
         pagination = {
           ...pagination,
           total: total,
           route: route
-        }
-        return showApi.showResponseWithPagination(response, 'List Data Product', dataFilter, pagination)
+        };
+        return showApi.showResponseWithPagination(response, 'List Data Product', dataFilter, pagination);
       } catch (err) {
-        return showApi.showResponse(response, err.message, null, 500)
+        return showApi.showResponse(response, err.message, null, 500);
       }
     } else {
-      return showApi.showResponse(response, 'Data not found', null, 404)
+      return showApi.showResponse(response, 'Data not found', null, 404);
     }
   } else {
-    showApi.showResponse(response, 'Pagination was not valid.', null, validation.validationPagination(pagination), 400)
+    showApi.showResponse(response, 'Pagination was not valid.', null, validation.validationPagination(pagination), 400);
   }
-}
+};
 
 exports.getProducts = async (request, response) => {
   let {
@@ -244,9 +244,7 @@ exports.insertProduct = async (request, response) => {
       }
     });
   });
-}
-
-
+};
 
 exports.updateProduct = (request, response) => {
   upload(request, response, async (errorUpload) => {

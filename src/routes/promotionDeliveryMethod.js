@@ -1,5 +1,5 @@
 
-const promotionDeliveryMethods = require('express').Router()
+const promotionDeliveryMethods = require('express').Router();
 
 const {
   insertPromotionDeliveryMethod,
@@ -7,12 +7,12 @@ const {
   getPromotionDeliveryMethod,
   updatePatchPromotionDeliveryMethod,
   deletePromotionDeliveryMethod
-} = require('../controllers/promotionDeliveryMethod')
+} = require('../controllers/promotionDeliveryMethod');
 
-promotionDeliveryMethods.post('/', insertPromotionDeliveryMethod)
-promotionDeliveryMethods.get('/', getPromotionDeliveryMethods)
-promotionDeliveryMethods.get('/:id', getPromotionDeliveryMethod)
-promotionDeliveryMethods.patch('/:id', updatePatchPromotionDeliveryMethod)
-promotionDeliveryMethods.delete('/:id', deletePromotionDeliveryMethod)
+promotionDeliveryMethods.post('/', insertPromotionDeliveryMethod);
+promotionDeliveryMethods.get('/', getPromotionDeliveryMethods);
+promotionDeliveryMethods.get('/:id', getPromotionDeliveryMethod);
+promotionDeliveryMethods.patch('/:id', updatePatchPromotionDeliveryMethod);
+promotionDeliveryMethods.delete('/:id', deletePromotionDeliveryMethod);
 
-module.exports = promotionDeliveryMethods
+module.exports = promotionDeliveryMethods;
