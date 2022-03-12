@@ -67,6 +67,25 @@ exports.validationDataProducts = async (data) => {
   return result
 }
 
+exports.validationDataPromotionDeliveryMethods = async (data) => {
+  let result = null
+  if (data.promotion_id == null || data.promotion_id === undefined) {
+    result = { promotion_id: 'promotion_id must be filled' }
+  }
+  if (!data.promotion_id) {
+    result = { promotion_id: 'Invalid input, promotion_id must be a number!' }
+  }
+
+  if (data.delivery_method_id == null || data.delivery_method_id === undefined) {
+    result = { delivery_method_id: 'promotion_id must be filled' }
+  }
+  if (!data.delivery_method_id) {
+    result = { delivery_method_id: 'Invalid input, promotion_id must be a number!' }
+  }
+
+  return result
+}
+
 exports.validationPagination = (pagination) => {
   let result = null
   const { page, limit } = pagination
