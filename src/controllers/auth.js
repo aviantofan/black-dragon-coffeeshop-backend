@@ -17,7 +17,7 @@ const login = async(req, res) => {
             if (checkPassword) {
                 if (parseInt(dataUser[0].confirm) === 1) {
                     const data = { id: dataUser[0].id }
-                    const token = jwt.sign(data.id, APP_SECRET)
+                    const token = jwt.sign(data, APP_SECRET)
                     return showApi.showResponse(res, 'Login Success!', { token })
                 } else {
                     return showApi.showResponse(res, 'User not authorized', null, null, 404)
