@@ -1,4 +1,3 @@
-/* eslint-disable no-unused-vars */
 const productModel = require('../models/product');
 const showApi = require('../helpers/showResponse');
 const upload = require('../helpers/upload').single('image');
