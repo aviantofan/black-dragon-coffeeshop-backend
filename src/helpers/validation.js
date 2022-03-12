@@ -1,5 +1,6 @@
 const categoryModel = require('../models/category')
 const deliveryMethodModel = require('../models/deliveryMethod')
+const productModel = require('../models/product')
 const userModel = require('../models/user')
 const sizeModel = require('../models/size')
 const validator = require('validator')
@@ -117,6 +118,35 @@ exports.validationRegister = async(data) => {
 
     if (!data.password || data.password === '') {
         result = {...result, password: 'Password must be filled.' }
+    }
+    return result
+}
+
+
+exports.validationSizeForProduct = async(data) => {
+    let result = null
+    console.log(data.product_id)
+    if (!data.product_id || data.product_id === '') {
+        result = { product_id: 'product_id must be filled.' }
+    } else if (!validator.isNumeric(data.product_id)) {
+        result = { product_id: 'product_id must be a number.' }
+    } else {
+        const result = await productModel.getDataProduct(data.product_id)
+        console.log(result.result)
+        if (result.length === 0) {
+            result = { product_id: 'Data product not found.' }
+        }
+    }
+
+    if (!data.size_id || data.size_id === '') {
+        result = { size_id: 'id size must be filled.' }
+    } else if (!validator.isNumeric(data.size_id)) {
+        result = { size_id: 'Id size must be a number.' }
+    } else {
+        const dataSizeOfProduct = await sizeModel.getDataSize(data.size_id)
+        if (dataSizeOfProduct.length === 0) {
+            result = { size_id: 'Data size not found.' }
+        }
     }
     return result
 }
