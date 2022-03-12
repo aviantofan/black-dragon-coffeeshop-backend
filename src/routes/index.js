@@ -5,5 +5,6 @@ route.use('/auth', require('./auth'));
 route.use('/profile', require('./profile'));
 route.use('/categories', require('./category'));
 route.use('/histories', require('./histories'));
+route.use('/promotions', require('./promotion'));
 
 module.exports = route;
