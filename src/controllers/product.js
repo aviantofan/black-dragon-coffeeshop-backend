@@ -8,7 +8,7 @@ const {
   APP_URL
 } = process.env;
 
-const getFilterData = async (request, response) => {
+exports.getFilterData = async (request, response) => {
   let {
     name,
     page,
@@ -82,7 +82,7 @@ const getFilterData = async (request, response) => {
   }
 }
 
-const getProducts = async (request, response) => {
+exports.getProducts = async (request, response) => {
   let {
     name,
     page,
@@ -156,7 +156,7 @@ const getProducts = async (request, response) => {
   }
 };
 
-const getProduct = async (request, response) => {
+exports.getProduct = async (request, response) => {
   const {
     id
   } = request.params;
@@ -169,285 +169,279 @@ const getProduct = async (request, response) => {
   }
 };
 
-const insertProduct = async (request, response) => {
-      upload(request, response, async (errorUpload) => {
-              auth.verifyUser(request, response, async (error) => {
-                    const data = {
-                      name: request.body.name,
-                      price: request.body.price,
-                      description: request.body.description,
-                      stocks: request.body.stocks,
-                      delivery_time_start: request.body.deliveryTimeStart,
-                      delivery_time_end: request.body.deliveryTimeEnd,
-                      category_id: request.body.categoryId,
-                      delivery_method_id: request.body.deliveryMethodId,
-                      size_id: request.body.sizeId
+exports.insertProduct = async (request, response) => {
+  upload(request, response, async (errorUpload) => {
+    auth.verifyUser(request, response, async (error) => {
+      const data = {
+        name: request.body.name,
+        price: request.body.price,
+        description: request.body.description,
+        stocks: request.body.stocks,
+        delivery_time_start: request.body.deliveryTimeStart,
+        delivery_time_end: request.body.deliveryTimeEnd,
+        category_id: request.body.categoryId,
+        delivery_method_id: request.body.deliveryMethodId,
+        size_id: request.body.sizeId
 
-                    };
+      };
 
-                    let errValidation = await validation.validationDataProducts(data);
-                    // let errValidation = validation.validationDataProducts(data);
+      let errValidation = await validation.validationDataProducts(data);
+      // let errValidation = validation.validationDataProducts(data);
 
-                    if (request.file) {
-                      data.image = request.file.path;
-                    }
-                    if (errorUpload) {
-                      errValidation = {
-                        ...errValidation,
-                        image: errorUpload.message
-                      };
-                    }
+      if (request.file) {
+        data.image = request.file.path;
+      }
+      if (errorUpload) {
+        errValidation = {
+          ...errValidation,
+          image: errorUpload.message
+        };
+      }
 
-                    if (errValidation == null) {
-                      const dataProduct = {
-                        name: request.body.name,
-                        price: request.body.price,
-                        description: request.body.description,
-                        stocks: request.body.stocks,
-                        delivery_time_start: request.body.deliveryTimeStart,
-                        delivery_time_end: request.body.deliveryTimeEnd,
-                        category_id: request.body.categoryId
-                      };
-                      // const resultDataProduct = await productModel.insertDataProduct(dataProduct);
-                      const resultDataProduct = await productModel.insertDataProduct(dataProduct);
-                      if (resultDataProduct.affectedRows > 0) {
-                        const dataProductSize = {
-                          product_id: resultDataProduct.insertId,
-                          size_id: data.size_id
-                        };
+      if (errValidation == null) {
+        const dataProduct = {
+          name: request.body.name,
+          price: request.body.price,
+          description: request.body.description,
+          stocks: request.body.stocks,
+          delivery_time_start: request.body.deliveryTimeStart,
+          delivery_time_end: request.body.deliveryTimeEnd,
+          category_id: request.body.categoryId
+        };
+        // const resultDataProduct = await productModel.insertDataProduct(dataProduct);
+        const resultDataProduct = await productModel.insertDataProduct(dataProduct);
+        if (resultDataProduct.affectedRows > 0) {
+          const dataProductSize = {
+            product_id: resultDataProduct.insertId,
+            size_id: data.size_id
+          };
 
-                        const dataProductDeliveryMethod = {
-                          product_id: resultDataProduct.insertId,
-                          delivery_method_id: data.delivery_method_id
-                        };
+          const dataProductDeliveryMethod = {
+            product_id: resultDataProduct.insertId,
+            delivery_method_id: data.delivery_method_id
+          };
 
-                        let success = false;
-                        const resultDataProductSize = await productModel.insertDataProductSize(dataProductSize);
-                        if (resultDataProductSize.affectedRows > 0) {
-                          success = true;
-                        }
+          let success = false;
+          const resultDataProductSize = await productModel.insertDataProductSize(dataProductSize);
+          if (resultDataProductSize.affectedRows > 0) {
+            success = true;
+          }
 
-                        const resultDataProductDeliveryMethod = await productModel.insertDataProductDeliveryMethod(dataProductDeliveryMethod);
-                        if (resultDataProductSize.affectedRows > 0) {
-                          success = true;
-                        }
+          const resultDataProductDeliveryMethod = await productModel.insertDataProductDeliveryMethod(dataProductDeliveryMethod);
+          if (resultDataProductSize.affectedRows > 0) {
+            success = true;
+          }
 
-                        if (success) {
-                          const result = await productModel.getDataProduct(resultDataProduct.insertId);
-                          showApi.showResponse(response, 'Data product created successfully!', result);
-                        } else {
-                          showApi.showResponse(response, 'Data product failed to create!', null, null, 500);
-                        }
-                      }
-                    } else {
-                      showApi.showResponse(response, 'Data product not valid', null, errValidation, 400);
-                    }
-                  };
+          if (success) {
+            const result = await productModel.getDataProduct(resultDataProduct.insertId);
+            showApi.showResponse(response, 'Data product created successfully!', result);
+          } else {
+            showApi.showResponse(response, 'Data product failed to create!', null, null, 500);
+          }
+        }
+      } else {
+        showApi.showResponse(response, 'Data product not valid', null, errValidation, 400);
+      }
+    });
+  });
+}
 
-                  const updateProduct = (request, response) => {
-                    upload(request, response, async (errorUpload) => {
-                      // auth.verifyUser(request, response, async(error) => {
-                      const {
-                        id
-                      } = request.params;
 
-                      if (id) {
-                        if (!isNaN(id)) {
-                          const dataProduct = await productModel.getDataProduct(id);
-                          if (dataProduct.length > 0) {
-                            const data = {
-                              name: request.body.name,
-                              price: request.body.price,
-                              description: request.body.description,
-                              stocks: request.body.stocks,
-                              delivery_time_start: request.body.deliveryTimeStart,
-                              delivery_time_end: request.body.deliveryTimeEnd,
-                              category_id: request.body.categoryId,
-                              delivery_method_id: request.body.deliveryMethodId,
-                              size_id: request.body.sizeId
-                            };
 
-                            let errValidation = await validation.validationDataProducts(data);
+exports.updateProduct = (request, response) => {
+  upload(request, response, async (errorUpload) => {
+    // auth.verifyUser(request, response, async(error) => {
+    const {
+      id
+    } = request.params;
 
-                            if (request.file) {
-                              data.image = request.file.path;
-                            }
-                            if (errorUpload) {
-                              errValidation = {
-                                ...errValidation,
-                                photo: errorUpload.message
-                              };
-                            }
+    if (id) {
+      if (!isNaN(id)) {
+        const dataProduct = await productModel.getDataProduct(id);
+        if (dataProduct.length > 0) {
+          const data = {
+            name: request.body.name,
+            price: request.body.price,
+            description: request.body.description,
+            stocks: request.body.stocks,
+            delivery_time_start: request.body.deliveryTimeStart,
+            delivery_time_end: request.body.deliveryTimeEnd,
+            category_id: request.body.categoryId,
+            delivery_method_id: request.body.deliveryMethodId,
+            size_id: request.body.sizeId
+          };
 
-                            if (errValidation == null) {
-                              const resultDataProduct = await productModel.updateDataProduct(dataProduct, id);
-                              if (resultDataProduct.affectedRows > 0) {
-                                let success = false;
-                                const dataProductSize = {
-                                  product_id: resultDataProduct.insertId,
-                                  size_id: data.size_id
-                                };
+          let errValidation = await validation.validationDataProducts(data);
 
-                                const dataProductDeliveryMethod = {
-                                  product_id: resultDataProduct.insertId,
-                                  delivery_method_id: data.delivery_method_id
-                                };
-                                const resultDataProductSize = await productModel.updateDataProductSize(dataProductSize, id);
-                                if (resultDataProductSize.affectedRows > 0) {
-                                  success = true;
-                                }
+          if (request.file) {
+            data.image = request.file.path;
+          }
+          if (errorUpload) {
+            errValidation = {
+              ...errValidation,
+              photo: errorUpload.message
+            };
+          }
 
-                                const resultDataProductDeliveryMethod = await productModel.updateDataProductDeliveryMethod(dataProductDeliveryMethod, id);
-                                if (resultDataProductDeliveryMethod.affectedRows > 0) {
-                                  success = true;
-                                }
+          if (errValidation == null) {
+            const resultDataProduct = await productModel.updateDataProduct(dataProduct, id);
+            if (resultDataProduct.affectedRows > 0) {
+              let success = false;
+              const dataProductSize = {
+                product_id: resultDataProduct.insertId,
+                size_id: data.size_id
+              };
 
-                                if (success) {
-                                  const result = await productModel.getDataProduct(id);
-                                  showApi.showResponse(response, 'Data product updated successfully!', result);
-                                } else {
-                                  showApi.showResponse(response, 'Data product failed to update!', 500);
-                                }
-                              }
-                            } else {
-                              showApi.showResponse(response, 'Data product not valid', null, errValidation, 400);
-                            }
-                          } else {
-                            return showApi.showResponse(response, 'Data product not found', null, null, 400);
-                          }
-                        } else {
-                          return showApi.showResponse(response, 'Id must be a number', null, null, 400);
-                        }
-                      } else {
-                        return showApi.showResponse(response, 'Id must be filled.', null, null, 400);
-                      }
-                    });
-                  };
+              const dataProductDeliveryMethod = {
+                product_id: resultDataProduct.insertId,
+                delivery_method_id: data.delivery_method_id
+              };
+              const resultDataProductSize = await productModel.updateDataProductSize(dataProductSize, id);
+              if (resultDataProductSize.affectedRows > 0) {
+                success = true;
+              }
 
-                  const updatePatchProduct = (request, response) => {
-                    upload(request, response, async (errorUpload) => {
-                      // auth.verifyUser(request, response, async(error) => {
-                      const {
-                        id
-                      } = request.params;
-                      if (id) {
-                        if (!isNaN(id)) {
-                          const getDataProduct = await productModel.getDataProduct(id);
-                          if (getDataProduct.length > 0) {
-                            const dataProduct = {};
-                            const dataProductSize = {};
-                            const dataProductDeliveryMethod = {};
+              const resultDataProductDeliveryMethod = await productModel.updateDataProductDeliveryMethod(dataProductDeliveryMethod, id);
+              if (resultDataProductDeliveryMethod.affectedRows > 0) {
+                success = true;
+              }
 
-                            const filled = ['name', 'price', 'description', 'stocks', 'delivery_time_start', 'delivery_time_end',
-                              'category_id', 'delivery_method_id', 'size_id'
-                            ];
-                            filled.forEach((value) => {
-                              if (request.body[value]) {
-                                if (value !== 'size_id' && value !== 'delivery_method_id') {
-                                  if (request.file) {
-                                    const photoTemp = request.file.path;
-                                    dataProduct.image = photoTemp.replace('\\', '/');
-                                  }
-                                  dataProduct[value] = request.body[value];
-                                }
+              if (success) {
+                const result = await productModel.getDataProduct(id);
+                showApi.showResponse(response, 'Data product updated successfully!', result);
+              } else {
+                showApi.showResponse(response, 'Data product failed to update!', 500);
+              }
+            }
+          } else {
+            showApi.showResponse(response, 'Data product not valid', null, errValidation, 400);
+          }
+        } else {
+          return showApi.showResponse(response, 'Data product not found', null, null, 400);
+        }
+      } else {
+        return showApi.showResponse(response, 'Id must be a number', null, null, 400);
+      }
+    } else {
+      return showApi.showResponse(response, 'Id must be filled.', null, null, 400);
+    }
+  });
+};
 
-                                if (value === 'size_id') {
-                                  dataProductSize[value] = request.body[value];
-                                }
+exports.updatePatchProduct = (request, response) => {
+  upload(request, response, async (errorUpload) => {
+    // auth.verifyUser(request, response, async(error) => {
+    const {
+      id
+    } = request.params;
+    if (id) {
+      if (!isNaN(id)) {
+        const getDataProduct = await productModel.getDataProduct(id);
+        if (getDataProduct.length > 0) {
+          const dataProduct = {};
+          const dataProductSize = {};
+          const dataProductDeliveryMethod = {};
 
-                                if (value === 'delivery_method_id') {
-                                  dataProductDeliveryMethod[value] = request.body[value];
-                                }
-                              }
-                            });
+          const filled = ['name', 'price', 'description', 'stocks', 'delivery_time_start', 'delivery_time_end',
+            'category_id', 'delivery_method_id', 'size_id'
+          ];
+          filled.forEach((value) => {
+            if (request.body[value]) {
+              if (value !== 'size_id' && value !== 'delivery_method_id') {
+                if (request.file) {
+                  const photoTemp = request.file.path;
+                  dataProduct.image = photoTemp.replace('\\', '/');
+                }
+                dataProduct[value] = request.body[value];
+              }
 
-                            try {
-                              const update = await productModel.updateDataProduct(dataProduct, id);
-                              if (update.affectedRows > 0) {
-                                let detailProduct = false;
+              if (value === 'size_id') {
+                dataProductSize[value] = request.body[value];
+              }
 
-                                if (Object.keys(dataProductSize).length > 0) {
-                                  dataProductSize.product_id = id;
-                                  const resultDataProductSize = await productModel.updateDataProductSize(dataProductSize, id);
-                                  if (resultDataProductSize.affectedRows > 0) {
-                                    detailProduct = true;
-                                  }
-                                }
+              if (value === 'delivery_method_id') {
+                dataProductDeliveryMethod[value] = request.body[value];
+              }
+            }
+          });
 
-                                if (Object.keys(dataProductDeliveryMethod).length > 0) {
-                                  dataProductDeliveryMethod.product_id = id;
-                                  const resultDataProductDeliveryMethod = await productModel.updateDataProductDeliveryMethod(dataProductDeliveryMethod, id);
-                                  if (resultDataProductDeliveryMethod.affectedRows > 0) {
-                                    detailProduct = true;
-                                  }
-                                }
+          try {
+            const update = await productModel.updateDataProduct(dataProduct, id);
+            if (update.affectedRows > 0) {
+              let detailProduct = false;
 
-                                if (detailProduct) {
-                                  const result = await productModel.getDataProduct(id);
-                                  result[0].image = `${APP_URL}/${result[0].image.replace('\\', '/')}`;
-                                  return showApi.showResponse(response, 'Data product updated successfully!', result[0]);
-                                } else {
-                                  const result = await productModel.getDataProduct(id);
-                                  result[0].image = `${APP_URL}/${result[0].image.replace('\\', '/')}`;
-                                  return showApi.showResponse(response, 'Data product updated successfully!', result[0]);
-                                }
-                              } else {
-                                return showApi.showResponse(response, 'Data product failed to update', null, null, 500);
-                              }
-                            } catch (err) {
-                              return showApi.showResponse(response, err.message, null, null, 500);
-                            }
-                          } else {
-                            return showApi.showResponse(response, 'Data product not found', null, null, 400);
-                          }
-                        } else {
-                          return showApi.showResponse(response, 'Id must be a number', null, null, 400);
-                        }
-                      } else {
-                        return showApi.showResponse(response, 'Id must be filled.', null, null, 400);
-                      }
-                    });
-                  };
+              if (Object.keys(dataProductSize).length > 0) {
+                dataProductSize.product_id = id;
+                const resultDataProductSize = await productModel.updateDataProductSize(dataProductSize, id);
+                if (resultDataProductSize.affectedRows > 0) {
+                  detailProduct = true;
+                }
+              }
 
-                  const deleteProduct = async (request, response) => {
-                    // auth.verifyUser(request, response, async(error) => {
-                    const {
-                      id
-                    } = request.params;
+              if (Object.keys(dataProductDeliveryMethod).length > 0) {
+                dataProductDeliveryMethod.product_id = id;
+                const resultDataProductDeliveryMethod = await productModel.updateDataProductDeliveryMethod(dataProductDeliveryMethod, id);
+                if (resultDataProductDeliveryMethod.affectedRows > 0) {
+                  detailProduct = true;
+                }
+              }
 
-                    const getDataProduct = await productModel.getDataProduct(id);
-                    if (getDataProduct.length > 0) {
-                      let success = false;
-                      const resultDataProductSize = await productModel.deleteDataProductSize(id);
-                      console.log(resultDataProductSize.affectedRows);
-                      if (resultDataProductSize.affectedRows > 0) {
-                        success = true;
-                      }
+              if (detailProduct) {
+                const result = await productModel.getDataProduct(id);
+                result[0].image = `${APP_URL}/${result[0].image.replace('\\', '/')}`;
+                return showApi.showResponse(response, 'Data product updated successfully!', result[0]);
+              } else {
+                const result = await productModel.getDataProduct(id);
+                result[0].image = `${APP_URL}/${result[0].image.replace('\\', '/')}`;
+                return showApi.showResponse(response, 'Data product updated successfully!', result[0]);
+              }
+            } else {
+              return showApi.showResponse(response, 'Data product failed to update', null, null, 500);
+            }
+          } catch (err) {
+            return showApi.showResponse(response, err.message, null, null, 500);
+          }
+        } else {
+          return showApi.showResponse(response, 'Data product not found', null, null, 400);
+        }
+      } else {
+        return showApi.showResponse(response, 'Id must be a number', null, null, 400);
+      }
+    } else {
+      return showApi.showResponse(response, 'Id must be filled.', null, null, 400);
+    }
+  });
+};
 
-                      const resultDataProductDeliveryMethod = await productModel.deleteDataProductDeliveryMethod(id);
-                      if (resultDataProductDeliveryMethod.affectedRows > 0) {
-                        success = true;
-                      }
-                      if (success) {
-                        const resultDataProduct = await productModel.deleteDataProduct(id);
-                        if (resultDataProduct.affectedRows > 0) {
-                          const result = await productModel.getDataProduct(id);
-                          showApi.showResponse(response, 'Data product deleted successfully!');
-                        } else {
-                          showApi.showResponse(response, 'Data product failed to delete!', null, 500);
-                        }
-                      }
-                    } else {
-                      showApi.showResponse(response, 'Data product not found!', null, 404);
-                    }
-                  };
+exports.deleteProduct = async (request, response) => {
+  // auth.verifyUser(request, response, async(error) => {
+  const {
+    id
+  } = request.params;
 
-                  module.exports = {
-                    getProducts,
-                    getProduct,
-                    insertProduct,
-                    updateProduct,
-                    updatePatchProduct,
-                    deleteProduct,
-                    getFilterData
-                  }
+  const getDataProduct = await productModel.getDataProduct(id);
+  if (getDataProduct.length > 0) {
+    let success = false;
+    const resultDataProductSize = await productModel.deleteDataProductSize(id);
+    console.log(resultDataProductSize.affectedRows);
+    if (resultDataProductSize.affectedRows > 0) {
+      success = true;
+    }
+
+    const resultDataProductDeliveryMethod = await productModel.deleteDataProductDeliveryMethod(id);
+    if (resultDataProductDeliveryMethod.affectedRows > 0) {
+      success = true;
+    }
+    if (success) {
+      const resultDataProduct = await productModel.deleteDataProduct(id);
+      if (resultDataProduct.affectedRows > 0) {
+        const result = await productModel.getDataProduct(id);
+        showApi.showResponse(response, 'Data product deleted successfully!');
+      } else {
+        showApi.showResponse(response, 'Data product failed to delete!', null, 500);
+      }
+    }
+  } else {
+    showApi.showResponse(response, 'Data product not found!', null, 404);
+  }
+};
