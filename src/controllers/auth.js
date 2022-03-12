@@ -336,7 +336,7 @@ exports.login = async (req, res) => {
   };
   const errValidation = await validation.validationLogin(dataLogin);
   if (errValidation == null) {
-    const dataUser = await userModel.getDataUerByEmail(dataLogin.email);
+    const dataUser = await userModel.getDataUserByEmail(dataLogin.email);
 
     if (dataUser.length > 0) {
       const {

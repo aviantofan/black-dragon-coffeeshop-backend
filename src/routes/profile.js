@@ -7,13 +7,20 @@ const {
 } = require('../middlewares/auth');
 
 const {
-  getProfile,
   updateProfile,
-  updatePatchProfile
+  // updatePatchProfile,
+  getProfile,
+  updateUserProfile
+  // updateUserProfile
 } = require('../controllers/profile');
+const {
+  uploadMiddleware
+} = require('../middlewares/upload');
 
 profile.get('/:id', verifyUser, getProfile);
 profile.put('/:id', verifyUser, updateProfile);
-profile.patch('/:id', verifyUser, updatePatchProfile);
+// profile.patch('/:id', verifyUser, uploadMiddleware('image'), updatePatchProfile);
+profile.patch('/:id', verifyUser, uploadMiddleware('image'), updateUserProfile);
+// profile.patch('/:id', verifyUser, updateUserProfile);
 
 module.exports = profile;

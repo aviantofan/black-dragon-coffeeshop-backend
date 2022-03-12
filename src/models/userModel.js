@@ -1,12 +1,12 @@
 const db = require('../config/db');
 const {
-  userProfileTable,
-  authUserTable
+  userProfileTable
+  // authUserTable
 } = require('../helpers/constants');
 
 exports.getUserByPhone = (phone) => {
   return new Promise((resolve, reject) => {
-    db.query(`SELECT COUNT(*) as row FROM ${userProfileTable} WHERE phone = ?`, phone, (err, results) => {
+    db.query(`SELECT COUNT(*) as row FROM ${userProfileTable} WHERE phone = ${phone}`, (err, results) => {
       if (err) {
         reject(err);
       }
@@ -27,11 +27,16 @@ exports.insert = (data) => {
   });
 };
 
-exports.getDataUerByEmail = (email) => new Promise((resolve, reject) => {
-  const query = db.query(`select * from ${authUserTable} where email=?`, [email], (err, res) => {
+exports.getDataUserByEmail = (email) => new Promise((resolve, reject) => {
+  const query = `
+    SELECT * FROM auth_users au
+    WHERE au.email = ?
+  `;
+  // const query = db.query(`select * from ${authUserTable} where email=?`, [email], (err, res) => {
+  db.query(query, [email], (err, res) => {
     if (err) reject(err);
     resolve(res);
   });
 
-  console.log(query.sql);
+  // console.log(query.sql);
 });

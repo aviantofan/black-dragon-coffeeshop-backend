@@ -1,9 +1,13 @@
 // const querystring = require('querystring');
 const {
-  APP_URL
+  deleteFile
+} = require('../helpers/fileHandler');
+const {
+  APP_URL,
+  ENVIRONMENT
 } = process.env;
 
-exports.showResponse = (res, message, result, error = null, status = 200) => {
+exports.showResponse = (res, message, result, error = null, status = 200, deleteImage = false) => {
   // console.error(error);
   let success = true;
   const data = {
@@ -12,6 +16,10 @@ exports.showResponse = (res, message, result, error = null, status = 200) => {
   };
   if (status >= 400) {
     success = false;
+
+    if (deleteImage) {
+      deleteFile(deleteImage);
+    }
     // data.error = error;
   }
 
@@ -125,7 +133,9 @@ exports.dataMapping = (data) => {
   data.map(el => {
     if (el.image !== null) {
       const path = el.image.replace(/\\/g, '/');
-      el.image = `${APP_URL}/${path}`;
+      if (ENVIRONMENT !== 'production') {
+        el.image = `${APP_URL}/${path}`;
+      }
     } else {
       el.image = null;
     }
