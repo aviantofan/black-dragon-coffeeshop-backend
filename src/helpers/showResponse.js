@@ -1,9 +1,10 @@
+// const querystring = require('querystring');
 const {
   APP_URL
 } = process.env;
 
 exports.showResponse = (res, message, result, error = null, status = 200) => {
-  console.error(error);
+  // console.error(error);
   let success = true;
   const data = {
     success,
@@ -47,4 +48,75 @@ const getPagination = (pagination) => {
     currentPage: pagination.page,
     lastPage: last
   };
+};
+
+exports.returningError = (res, status, message, deletePath = false) => {
+  if (deletePath) {
+    // deleteFile(deletePath);
+  }
+  return res.status(status).json({
+    success: false,
+    message
+  });
+};
+
+exports.returningSuccess = (res, status, message, data, pageInfo = null) => {
+  if (pageInfo) {
+    return res.status(status).json({
+      success: true,
+      message: message,
+      pageInfo,
+      results: data
+    });
+  }
+
+  return res.status(status).json({
+    success: true,
+    message: message,
+    results: data
+  });
+};
+
+// use querystring for pagination
+exports.pageInfoCreator = (totalDataCount, url, values) => {
+  const {
+    page,
+    limit
+  } = values;
+
+  const keys = [];
+  let next = url;
+  let prev = url;
+
+  for (const key in values) {
+    keys.push(key);
+  }
+
+  keys.forEach((el, idx) => {
+    if (values[el]) {
+      if (el === 'page') {
+        next += el + '=' + (Number(values[el]) + 1) + '&';
+        prev += el + '=' + (Number(values[el]) - 1) + '&';
+      } else if (idx < (keys.length - 1)) {
+        next += el + '=' + values[el] + '&';
+        prev += el + '=' + values[el] + '&';
+      } else {
+        next += el + '=' + values[el];
+        prev += el + '=' + values[el];
+      }
+    }
+  });
+
+  const totalData = totalDataCount;
+
+  const totalPages = Math.ceil(totalData / limit) || 1;
+
+  return ({
+    totalData,
+    totalPages,
+    currentPage: page,
+    nextPage: page < totalPages ? next : null,
+    prevPage: page > 1 ? prev : null,
+    lastPages: totalPages
+  });
 };

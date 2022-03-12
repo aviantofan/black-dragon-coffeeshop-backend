@@ -1,22 +1,22 @@
 const express = require('express');
+const app = express();
 const cors = require('cors');
 
-// use it before all route definitions
-
 require('dotenv').config();
-const app = express();
-
-app.use(express.urlencoded({
-  extended: true
-}));
-app.use(cors());
-
-app.use(require('./src/routes'));
+// use it before all route definitions
 
 const {
   PORT,
   APP_PORT
 } = process.env;
+
+app.use(cors());
+
+app.use(express.urlencoded({
+  extended: true
+}));
+
+app.use(require('./src/routes'));
 
 app.use(function (req, res, next) {
   res.setHeader('Access-Control-Allow-Origin', 'http://localhost:5000');

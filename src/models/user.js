@@ -67,3 +67,18 @@ exports.updateDataUserProfile = (data, id) => new Promise((resolve, reject) => {
   });
   console.log(query.sql);
 });
+
+// get user profile by id
+exports.getUserProfile = (id) => new Promise((resolve, reject) => {
+  const query = `
+    SELECT up.display_name, up.first_name, up.last_name, up.gender, up.phone, up.address, up.image, up.birthdate
+    FROM user_profiles up
+    LEFT JOIN auth_users au
+    ON au.id = up.auth_user_id
+  `;
+
+  db.query(query, [id], (err, res) => {
+    if (err) reject(err);
+    resolve(res);
+  });
+});
