@@ -10,11 +10,11 @@ const {
   updateProduct,
   updatePatchProduct,
   deleteProduct,
-  getFilter
+  getFilterData
 } = require('../controllers/product')
 
 products.get('/', getProducts)
-products.get('/filter', getFilter)
+products.get('/filter', getFilterData)
 products.get('/:id', getProduct)
 products.post('/', insertProduct)
 products.put('/:id', updateProduct)

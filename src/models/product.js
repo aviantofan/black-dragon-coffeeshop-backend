@@ -112,7 +112,7 @@ exports.deleteDataProductDeliveryMethod = (id) => new Promise((resolve, reject) 
   })
 })
 
-exports.getFilterSizeProducts = (data) => new Promise((resolve, reject) => {
+exports.getFilter = (data) => new Promise((resolve, reject) => {
   const filled = ['price', 'stocks', 'time', 'size_id', 'delivery_method_id']
   let resultFillter = ''
   filled.forEach((item) => {
@@ -133,7 +133,7 @@ exports.getFilterSizeProducts = (data) => new Promise((resolve, reject) => {
   console.log(query.sql)
 })
 
-exports.countFilterSizeProducts = (data) => new Promise((resolve, reject) => {
+exports.countFilter = (data) => new Promise((resolve, reject) => {
   const filled = ['size_id', 'delivery_method_id']
   let resultFillter = ''
   filled.forEach((item) => {
