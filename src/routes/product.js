@@ -11,11 +11,12 @@ const {
   insertProduct,
   updateProduct,
   updatePatchProduct,
-  deleteProduct
+  deleteProduct,
+  getFilterData
 } = require('../controllers/product');
 
-// products.get('/', verifyUser, getProducts);
 products.get('/', getProducts);
+products.get('/filter', getFilterData);
 products.get('/:id', getProduct);
 products.post('/', insertProduct);
 products.put('/:id', updateProduct);

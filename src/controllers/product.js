@@ -9,6 +9,80 @@ const {
   APP_URL
 } = process.env;
 
+const getFilterData = async (request, response) => {
+  let {
+    name,
+    page,
+    limit,
+    sort,
+    order
+  } = request.query
+  name = name || ''
+  sort = sort || 'p.created_at'
+  const filledFilter = ['size_id', 'delivery_method_id']
+  const filter = {}
+  page = ((page != null && page !== '') ? parseInt(page) : 1)
+  limit = ((limit != null && limit !== '') ? parseInt(limit) : 5)
+  order = order || 'desc'
+  let pagination = {
+    page,
+    limit
+  }
+  let route = 'products?'
+  let searchParam = ''
+  if (name) {
+    searchParam = `name=${name}`
+  }
+
+  filledFilter.forEach((item) => {
+    if (request.query[item]) {
+      filter[item] = request.query[item]
+      if (searchParam === '') {
+        searchParam += `${item}=${filter[item]}`
+      } else {
+        searchParam += `&${item}=${filter[item]}`
+      }
+    }
+  })
+  route += searchParam
+
+  const errValidation = await validation.validationPagination(pagination)
+  if (errValidation == null) {
+    const offset = (page - 1) * limit
+    console.log(offset)
+    const data = {
+      name,
+      filter,
+      limit,
+      offset,
+      sort,
+      order
+    }
+    const dataFilter = await productModel.getFilter(data)
+
+    if (dataFilter.length > 0) {
+      const result = await productModel.countFilter(data)
+      try {
+        const {
+          total
+        } = result[0]
+        pagination = {
+          ...pagination,
+          total: total,
+          route: route
+        }
+        return showApi.showResponseWithPagination(response, 'List Data Product', dataFilter, pagination)
+      } catch (err) {
+        return showApi.showResponse(response, err.message, null, 500)
+      }
+    } else {
+      return showApi.showResponse(response, 'Data not found', null, 404)
+    }
+  } else {
+    showApi.showResponse(response, 'Pagination was not valid.', null, validation.validationPagination(pagination), 400)
+  }
+}
+
 const getProducts = async (request, response) => {
   let {
     name,
@@ -375,5 +449,6 @@ const insertProduct = async (request, response) => {
                     insertProduct,
                     updateProduct,
                     updatePatchProduct,
-                    deleteProduct
-                  };
+                    deleteProduct,
+                    getFilterData
+                  }
