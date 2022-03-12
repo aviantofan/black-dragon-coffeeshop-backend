@@ -22,6 +22,8 @@ app.use(function (req, res, next) {
   next()
 })
 
+// ini contoh pull request
+
 app.use('/uploads', express.static('uploads'))
 
 app.listen(PORT || APP_PORT, () => {
