@@ -1,12 +1,13 @@
-const {
-  body,
-  validationResult
-} = require('express-validator');
-const categoryModel = require('../models/category');
+// const {
+// body,
+// validationResult
+// } = require('express-validator');
+// const categoryModel = require('../models/category');
 const deliveryMethodModel = require('../models/deliveryMethod');
 const sizeModel = require('../models/size');
 const validator = require('validator');
 const productModel = require('../models/product');
+const userModel = require('../models/user');
 
 // exports.validationDataProducts = async (data) => {
 //   let result = null;
@@ -76,7 +77,7 @@ const productModel = require('../models/product');
 
 exports.validationDataPromotionDeliveryMethods = async (data) => {
   let result = null;
-  if (data.promotion_id == null || data.promotion_id === undefined) {
+  if (data.promotion_id === null || data.promotion_id === undefined) {
     result = {
       promotion_id: 'promotion_id must be filled'
     };
@@ -87,7 +88,7 @@ exports.validationDataPromotionDeliveryMethods = async (data) => {
     };
   }
 
-  if (data.delivery_method_id == null || data.delivery_method_id === undefined) {
+  if (data.delivery_method_id === null || data.delivery_method_id === undefined) {
     result = {
       delivery_method_id: 'promotion_id must be filled'
     };
@@ -103,7 +104,7 @@ exports.validationDataPromotionDeliveryMethods = async (data) => {
 
 exports.validationDataPromotionSizes = async (data) => {
   let result = null;
-  if (data.promotion_id == null || data.promotion_id === undefined) {
+  if (data.promotion_id === null || data.promotion_id === undefined) {
     result = {
       promotion_id: 'promotion_id must be filled'
     };
@@ -114,7 +115,7 @@ exports.validationDataPromotionSizes = async (data) => {
     };
   }
 
-  if (data.size_id == null || data.size_id === undefined) {
+  if (data.size_id === null || data.size_id === undefined) {
     result = {
       size_id: 'size_id must be filled'
     };
