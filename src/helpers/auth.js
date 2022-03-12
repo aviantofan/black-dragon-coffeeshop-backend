@@ -1,6 +1,8 @@
 const jwt = require('jsonwebtoken');
 const showApi = require('../helpers/showResponse');
-const { APP_SECRET } = process.env;
+const {
+  APP_SECRET
+} = process.env;
 
 exports.verifyUser = (req, res, next) => {
   const auth = req.headers.authorization;
