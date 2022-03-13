@@ -1,17 +1,17 @@
 const deliveryMethods = require('express').Router();
 
 const {
-  insertDeliveryMethod,
-  getDeliveryMethods,
-  getDeliveryMethod,
-  updateDeliveryMethod,
-  deleteDeliveryMethod
+  insertDataDeliveryMethod,
+  getDataDeliveryMethods,
+  getDataDeliveryMethod,
+  updateDataDeliveryMethod,
+  deleteDataDeliveryMethod
 } = require('../controllers/deliveryMethod');
 
-deliveryMethods.post('/', insertDeliveryMethod);
-deliveryMethods.get('/', getDeliveryMethods);
-deliveryMethods.get('/:id', getDeliveryMethod);
-deliveryMethods.patch('/:id', updateDeliveryMethod);
-deliveryMethods.delete('/:id', deleteDeliveryMethod);
+deliveryMethods.post('/', insertDataDeliveryMethod);
+deliveryMethods.get('/', getDataDeliveryMethods);
+deliveryMethods.get('/:id', getDataDeliveryMethod);
+deliveryMethods.patch('/:id', updateDataDeliveryMethod);
+deliveryMethods.delete('/:id', deleteDataDeliveryMethod);
 
 module.exports = deliveryMethods;

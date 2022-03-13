@@ -11,5 +11,6 @@ route.use('/promotionDeliveryMethods', require('./promotionDeliveryMethod'));
 route.use('/promotionSizes', require('./promotionSize'));
 route.use('/producthistory', require('./productHistory'));
 route.use('/sizes', require('./size'));
+route.use('/deliveryMethods', require('./deliveryMethod'));
 
 module.exports = route;

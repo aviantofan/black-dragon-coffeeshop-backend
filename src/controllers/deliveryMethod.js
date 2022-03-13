@@ -1,50 +1,40 @@
 const deliveryMethodModel = require('../models/deliveryMethod');
-const upload = require('../helpers/upload').single('image');
 const showApi = require('../helpers/showResponse');
 const validation = require('../helpers/validation');
 
-const { APP_URL } = process.env;
+const insertDataDeliveryMethod = async (req, res) => {
+  const data = {
+    name: req.body.name,
+    cost: parseInt(req.body.cost)
+  };
+  const errValidation = await validation.validationDataDeliveryMethod(data);
 
-const insertDeliveryMethod = (req, res) => {
-  upload(req, res, async (errorUpload) => {
-    const data = {
-      name: req.body.name
+  if (errValidation === null) {
+    const dataDeliveryMethod = {
+      name: req.body.name,
+      cost: parseInt(req.body.cost)
     };
-    let errValidation = await validation.validationDataDeliveryMethod(data);
-
-    if (req.file) {
-      data.image = req.file.path;
+    const resultDataDeliveryMethod = await deliveryMethodModel.insertDataDeliveryMethod(dataDeliveryMethod);
+    let success = false;
+    if (resultDataDeliveryMethod.affectedRows > 0) {
+      success = true;
     }
-    if (errorUpload) {
-      errValidation = { ...errValidation, image: errorUpload.message };
-    }
-
-    if (errValidation == null) {
-      const dataDeliveryMethod = {
-        name: req.body.name
-      };
-      const resultDataDeliveryMethod = await deliveryMethodModel.insertDataDeliveryMethod(dataDeliveryMethod);
-      let success = false;
-      if (resultDataDeliveryMethod.affectedRows > 0) {
-        success = true;
-      }
-      if (success) {
-        const result = await deliveryMethodModel.getDataDeliveryMethod(resultDataDeliveryMethod.insertId);
-        showApi.showResponse(res, 'Data delivery method created successfully!', result);
-      } else {
-        showApi.showResponse(res, 'Data delivery method failed to create!', null, null, 500);
-      }
+    if (success) {
+      const result = await deliveryMethodModel.getDataDeliveryMethod(resultDataDeliveryMethod.insertId);
+      showApi.showResponse(res, 'Data delivery method created successfully!', result);
     } else {
-      showApi.showResponse(res, 'Data delivery method not valid', null, errValidation, 400);
+      showApi.showResponse(res, 'Data delivery method failed to create!', null, null, 500);
     }
-  });
+  } else {
+    showApi.showResponse(res, 'Data delivery method not valid', null, errValidation, 400);
+  }
 };
 
-const getDeliveryMethods = async (req, res) => {
+const getDataDeliveryMethods = async (req, res) => {
   let { name, page, limit } = req.query;
   name = name || '';
-  page = ((page != null && page !== '') ? parseInt(page) : 1);
-  limit = ((limit != null && limit !== '') ? parseInt(limit) : 5);
+  page = ((page !== null && page !== '') ? parseInt(page) : 1);
+  limit = ((limit !== null && limit !== '') ? parseInt(limit) : 5);
   let pagination = { page, limit };
   let route = 'DeliveryMethods?';
   let searchParam = '';
@@ -54,7 +44,7 @@ const getDeliveryMethods = async (req, res) => {
   route += searchParam;
 
   const errValidation = await validation.validationPagination(pagination);
-  if (errValidation == null) {
+  if (errValidation === null) {
     const offset = (page - 1) * limit;
     console.log(offset);
     const data = { name, limit, offset };
@@ -77,7 +67,7 @@ const getDeliveryMethods = async (req, res) => {
   }
 };
 
-const getDeliveryMethod = async (req, res) => {
+const getDataDeliveryMethod = async (req, res) => {
   const { id } = req.params;
   const result = await deliveryMethodModel.getDataDeliveryMethod(id);
   if (result.length > 0) {
@@ -87,57 +77,48 @@ const getDeliveryMethod = async (req, res) => {
   }
 };
 
-const updateDeliveryMethod = (req, res) => {
-  upload(req, res, async (errorUpload) => {
-    const { id } = req.params;
-    if (id) {
-      if (!isNaN(id)) {
-        const dataDeliveryMethod = await deliveryMethodModel.getDataDeliveryMethod(id);
-        if (dataDeliveryMethod.length > 0) {
-          const dataDeliveryMethod = {};
-          const filled = ['name'];
-          filled.forEach((value) => {
-            if (req.body[value]) {
-              if (req.file) {
-                const photoTemp = req.file.path;
-                dataDeliveryMethod.image = photoTemp.replace('\\', '/');
-              }
-              dataDeliveryMethod[value] = req.body[value];
-            }
-          });
-          try {
-            const update = await deliveryMethodModel.updateDataDeliveryMethod(dataDeliveryMethod, id);
-            let detailDeliveryMethod = false;
-            if (update.affectedRows > 0) {
-              detailDeliveryMethod = true;
-              if (detailDeliveryMethod) {
-                const result = await deliveryMethodModel.getDataDeliveryMethod(id);
-                result[0].image = `${APP_URL}/${result[0].image.replace('\\', '/')}`;
-                return showApi.showResponse(res, 'Data delivery method updated successfully!', result[0]);
-              } else {
-                const result = await deliveryMethodModel.getDataDeliveryMethod(id);
-                result[0].image = `${APP_URL}/${result[0].image.replace('\\', '/')}`;
-                return showApi.showResponse(res, 'Data delivery method updated successfully!', result[0]);
-              }
-            } else {
-              return showApi.showResponse(res, 'Data delivery method failed to update', null, null, 500);
-            }
-          } catch (err) {
-            return showApi.showResponse(res, err.message, null, null, 500);
+const updateDataDeliveryMethod = async (request, response) => {
+  const { id } = request.params;
+
+  if (id) {
+    if (!isNaN(id)) {
+      const dataDeliveryMethod = await deliveryMethodModel.getDataDeliveryMethod(id);
+      if (dataDeliveryMethod.length > 0) {
+        const data = {
+          name: request.body.name,
+          cost: parseInt(request.body.cost)
+        };
+        console.log(data);
+        const errValidation = await validation.validationDataDeliveryMethod(data);
+
+        if (errValidation === null) {
+          const resultDataDeliveryMethod = await deliveryMethodModel.updateDataDeliveryMethod(data, id);
+
+          let success = false;
+          if (resultDataDeliveryMethod.affectedRows > 0) {
+            success = true;
+          }
+          if (success) {
+            const result = await deliveryMethodModel.getDataDeliveryMethod(id);
+            showApi.showResponse(response, 'Data delivery method update success!', result);
+          } else {
+            showApi.showResponse(response, 'Data delivery method to update!', 500);
           }
         } else {
-          return showApi.showResponse(res, 'Data delivery method not found', null, null, 400);
+          showApi.showResponse(response, 'Data delivery method not valid', null, errValidation, 400);
         }
       } else {
-        return showApi.showResponse(res, 'Id must be a number', null, null, 400);
+        return showApi.showResponse(response, 'Data delivery method not found', null, null, 400);
       }
     } else {
-      return showApi.showResponse(res, 'Id must be filled.', null, null, 400);
+      return showApi.showResponse(response, 'Id must be a number', null, null, 400);
     }
-  });
+  } else {
+    return showApi.showResponse(response, 'Id must be filled.', null, null, 400);
+  }
 };
 
-const deleteDeliveryMethod = async (request, response) => {
+const deleteDataDeliveryMethod = async (request, response) => {
   const { id } = request.params;
 
   const getDataDeliveryMethod = await deliveryMethodModel.getDataDeliveryMethod(id);
@@ -148,7 +129,7 @@ const deleteDeliveryMethod = async (request, response) => {
       const resultDataDeliveryMethod = await deliveryMethodModel.deleteDataDeliveryMethod(id);
       if (resultDataDeliveryMethod.affectedRows > 0) {
         const result = await deliveryMethodModel.getDataDeliveryMethod(id);
-        showApi.showResponse(response, 'Data delivery method deleted successfully!', result);
+        showApi.showResponse(response, 'Data delivery method deleted successfully!', result[0]);
       } else {
         showApi.showResponse(response, 'Data delivery method failed to delete!', null, 500);
       }
@@ -158,4 +139,4 @@ const deleteDeliveryMethod = async (request, response) => {
   }
 };
 
-module.exports = { insertDeliveryMethod, getDeliveryMethods, getDeliveryMethod, updateDeliveryMethod, deleteDeliveryMethod };
+module.exports = { insertDataDeliveryMethod, getDataDeliveryMethods, getDataDeliveryMethod, updateDataDeliveryMethod, deleteDataDeliveryMethod };
