@@ -145,6 +145,22 @@ exports.validationDataPromotionDeliveryMethods = async (data) => {
   return result;
 };
 
+exports.validationDataSize = async (data) => {
+  let result = null;
+  if (data.name === null || data.name === '') {
+    result = {
+      name: 'Name must be filled'
+    };
+  }
+  if (!data.extra_price) {
+    result = {
+      name: 'Invalid input'
+    };
+  }
+
+  return result;
+};
+
 exports.validationDataPromotionSizes = async (data) => {
   let result = null;
   if (data.promotion_id == null || data.promotion_id === undefined) {
