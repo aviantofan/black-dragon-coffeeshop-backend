@@ -10,9 +10,9 @@ const {
 } = require('../controllers/productDeliveryMethod');
 
 productDeliveryMethod.get('/:idProduct', getProductDeliveryMethodByIdProduct); // get all size by id product
-productDeliveryMethod.post('/', insertProductDeliveryNethod);
-productDeliveryMethod.put('/:id', updateDataProductDeliveryMethod);
-productDeliveryMethod.patch('/:id', updatePatchProductDeliveryMethod);
-productDeliveryMethod.delete('/:id', deleteProdutDeliveryMethod);
+productDeliveryMethod.post('/', verifyUser, insertProductDeliveryNethod);
+productDeliveryMethod.put('/:id', verifyUser, updateDataProductDeliveryMethod);
+productDeliveryMethod.patch('/:id', verifyUser, updatePatchProductDeliveryMethod);
+productDeliveryMethod.delete('/:id', verifyUser, deleteProdutDeliveryMethod);
 
 module.exports = productDeliveryMethod;

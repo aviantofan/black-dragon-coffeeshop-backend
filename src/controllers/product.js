@@ -1,3 +1,4 @@
+// const queryString = require('qs');
 const productModel = require('../models/product');
 const showApi = require('../helpers/showResponse');
 const upload = require('../helpers/upload').single('image');
@@ -131,6 +132,7 @@ const getProducts = async (request, response) => {
       sort,
       order
     };
+    // console.log(data);
     const dataProduct = await productModel.getDataProducts(data);
 
     if (dataProduct.length > 0) {
@@ -182,12 +184,11 @@ const insertProduct = async (request, response) => {
       category_id: request.body.categoryId
     };
 
+    console.log(request.file);
+
     let errValidation = await validation.validationDataProducts(data);
     // let errValidation = validation.validationDataProducts(data);
 
-    if (request.file) {
-      data.image = request.file.path;
-    }
     if (errorUpload) {
       errValidation = {
         ...errValidation,
@@ -205,6 +206,11 @@ const insertProduct = async (request, response) => {
         delivery_time_end: request.body.deliveryTimeEnd,
         category_id: request.body.categoryId
       };
+
+      if (request.file) {
+        dataProduct.image = request.file.path.replace(/\\/g, '/');
+      }
+
       // const resultDataProduct = await productModel.insertDataProduct(dataProduct);
       const resultDataProduct = await productModel.insertDataProduct(dataProduct);
       let success = false;
@@ -213,7 +219,7 @@ const insertProduct = async (request, response) => {
       }
       if (success) {
         const result = await productModel.getDataProduct(resultDataProduct.insertId);
-        showApi.showResponse(response, 'Data product created successfully!', result[0]);
+        showApi.showResponse(response, 'Data product created successfully!', showApi.dataMapping(result)[0]);
       } else {
         showApi.showResponse(response, 'Data product failed to create!', null, null, 500);
       }
@@ -295,8 +301,7 @@ const updatePatchProduct = (request, response) => {
         if (getDataProduct.length > 0) {
           const dataProduct = {};
 
-          const filled = ['name', 'price', 'description', 'stocks', 'delivery_time_start', 'delivery_time_end', 'category_id'
-          ];
+          const filled = ['name', 'price', 'description', 'stocks', 'delivery_time_start', 'delivery_time_end', 'category_id'];
           filled.forEach((value) => {
             if (request.body[value]) {
               if (request.file) {
@@ -359,6 +364,49 @@ const deleteProduct = async (request, response) => {
   }
 };
 
+const listProduct = async (request, response) => {
+  try {
+    const {
+      page,
+      limit
+    } = request.query;
+
+    if (!page) {
+      return showApi.showResponse(response, 'Page must be filled', null, null, 400);
+    }
+
+    if (!limit) {
+      return showApi.showResponse(response, 'Limit must be filled', null, null, 400);
+    }
+
+    const dataForFilter = {
+      page: parseInt(page),
+      limit: parseInt(limit),
+      name: request.query.name || null,
+      category_id: request.query.category_id || null
+    };
+
+    // console.log(dataForFilter);
+
+    const result = await productModel.listProduct(dataForFilter);
+    const total = await productModel.countListProduct(dataForFilter);
+
+    if (result.length < 1) {
+      return showApi.showResponse(response, 'Data product not found', null, null, 404);
+    }
+
+    // const uri = queryString.stringify(dataForFilter);
+    // console.log(uri);
+
+    const pageInfo = showApi.pageInfoCreator(total[0].total, 'products', dataForFilter);
+
+    return showApi.returningSuccess(response, 200, 'Data product retrieved successfully!', showApi.dataMapping(result), pageInfo);
+  } catch (error) {
+    console.error(error);
+    return showApi.showResponse(response, error.message, null, null, 500);
+  }
+};
+
 module.exports = {
   getProducts,
   getProduct,
@@ -366,5 +414,6 @@ module.exports = {
   updateProduct,
   updatePatchProduct,
   deleteProduct,
-  getFilterData
+  getFilterData,
+  listProduct
 };

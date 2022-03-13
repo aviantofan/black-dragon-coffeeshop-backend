@@ -68,14 +68,8 @@ exports.requestMapping = (data, rules) => {
         }
       }
       if (rules[k].includes('date')) {
-        // const regexPattern = /^\d{4}-\d{2}-\d{2}$/;
-        // if (regexPattern.test(data[k])) {
-        //   dump[k] = data[k];
-        // } else {
-        //   dump[k] = null;
-        // }
-
-        if (validator.isDate(data[k])) {
+        const regexPattern = /^\d{4}-\d{2}-\d{2}$/;
+        if (regexPattern.test(data[k])) {
           dump[k] = data[k];
         } else {
           dump[k] = null;
@@ -111,11 +105,9 @@ exports.requestMapping = (data, rules) => {
           dump[k] = null;
         }
       }
-      if (rules[k].includes('gender')) {
-        const gender = ['asc', 'desc'];
-        const genderData = data[k].trim().toLowerCase();
-        if (gender.includes(genderData)) {
-          dump[k] = genderData;
+      if (rules[k].includes('datetime')) {
+        if (validator.isISO8601(data[k])) {
+          dump[k] = data[k];
         } else {
           dump[k] = null;
         }
