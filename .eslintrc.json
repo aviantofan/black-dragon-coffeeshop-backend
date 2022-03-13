@@ -11,6 +11,9 @@
         "ecmaVersion": "latest"
     },
     "rules": {
-      "semi": ["error", "always"]
+      "semi": ["error", "always"],
+      "eqeqeq": ["error", "always"],
+      "no-unused-vars": ["error", { "args": "none" }],
+      "quotes": ["error", "single"]
     }
 }
