@@ -12,7 +12,7 @@ exports.getDataProducts = (data) => new Promise((resolve, reject) => {
     }
   });
 
-  const query = db.query(`select p.id,p.name,p.price,concat('${APP_URL}/',image) as image,p.stocks,p.delivery_time_start,p.delivery_time_end,p.category_id,c.name categpry
+  const query = db.query(`select p.name,p.price,concat('${APP_URL}/',image) as image,p.category_id
     from products p join categories c on c.id = p.category_id
     where p.name like '%${data.name}%' ${resultFillter}
    order by ${data.sort} ${data.order} LIMIT ${data.limit} OFFSET ${data.offset}`, (error, result) => {
@@ -41,7 +41,7 @@ exports.countDataProducts = (data) => new Promise((resolve, reject) => {
 });
 
 exports.getDataProduct = (id) => new Promise((resolve, reject) => {
-  db.query('select * from products where id=?', [id], (err, res) => {
+  db.query('select name, price, image,category_id  from products where id=?', [id], (err, res) => {
     if (err) reject(err);
     resolve(res);
   });
