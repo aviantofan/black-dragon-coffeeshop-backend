@@ -407,6 +407,77 @@ const listProduct = async (request, response) => {
   }
 };
 
+const getFavorites = async (request, response) => {
+  let {
+    name,
+    page,
+    limit,
+    order
+  } = request.query;
+  name = name || '';
+  const filledFilter = ['history_id'];
+  const filter = {};
+  page = ((page !== null && page !== '') ? parseInt(page) : 1);
+  limit = ((limit !== null && limit !== '') ? parseInt(limit) : 5);
+  order = order || 'orderCount';
+  let pagination = {
+    page,
+    limit
+  };
+  let route = 'products?';
+  let searchParam = '';
+  if (name) {
+    searchParam = `name=${name}`;
+  }
+
+  filledFilter.forEach((item) => {
+    if (request.query[item]) {
+      filter[item] = request.query[item];
+      if (searchParam === '') {
+        searchParam += `${item}=${filter[item]}`;
+      } else {
+        searchParam += `&${item}=${filter[item]}`;
+      }
+    }
+  });
+  route += searchParam;
+
+  const errValidation = await validation.validationPagination(pagination);
+  if (errValidation === null) {
+    const offset = (page - 1) * limit;
+    console.log(offset);
+    const data = {
+      name,
+      filter,
+      limit,
+      offset,
+      order
+    };
+    const dataFavorite = await productModel.getDataFavorites(data);
+    console.log(dataFavorite);
+    if (dataFavorite.length > 0) {
+      const result = await productModel.countDataFavorites(data);
+      try {
+        const {
+          total
+        } = result[0];
+        pagination = {
+          ...pagination,
+          total: total,
+          route: route
+        };
+        return showApi.showResponseWithPagination(response, 'List Data Product Favorites', dataFavorite, pagination);
+      } catch (err) {
+        return showApi.showResponse(response, err.message, null, 500);
+      }
+    } else {
+      return showApi.showResponse(response, 'List Data Product Favorites', null, 404);
+    }
+  } else {
+    showApi.showResponse(response, 'Pagination was not valid.', null, validation.validationPagination(pagination), 400);
+  }
+};
+
 module.exports = {
   getProducts,
   getProduct,
@@ -415,5 +486,6 @@ module.exports = {
   updatePatchProduct,
   deleteProduct,
   getFilterData,
-  listProduct
+  listProduct,
+  getFavorites
 };
