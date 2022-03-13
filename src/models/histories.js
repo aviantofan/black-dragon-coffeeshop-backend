@@ -1,7 +1,4 @@
 const db = require('../helpers/database');
-const {
-  APP_URL
-} = process.env;
 
 exports.getDataHistoriesByFilter = (data) => new Promise((resolve, reject) => {
   const filled = ['category_id', 'size_id', 'delivery_method_id', 'payment_method_id', 'delivery_time'];
@@ -43,5 +40,12 @@ exports.countDataHistoriesByFilter = (data) => new Promise((resolve, reject) => 
     order by ${data.sort} ${data.order}`, (error, result) => {
     if (error) reject(error);
     resolve(result);
+  });
+});
+
+exports.getDataHistory = (id) => new Promise((resolve, reject) => {
+  db.query('SELECT * from histories where id=?', [id], (err, res) => {
+    if (err) reject(err);
+    resolve(res);
   });
 });

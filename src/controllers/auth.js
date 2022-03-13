@@ -335,7 +335,7 @@ exports.login = async (req, res) => {
     password: req.body.password
   };
   const errValidation = await validation.validationLogin(dataLogin);
-  if (errValidation == null) {
+  if (errValidation === null) {
     const dataUser = await userModel.getDataUserByEmail(dataLogin.email);
 
     if (dataUser.length > 0) {
