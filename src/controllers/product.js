@@ -299,13 +299,11 @@ const updatePatchProduct = (request, response) => {
           ];
           filled.forEach((value) => {
             if (request.body[value]) {
-              if (value !== 'size_id' && value !== 'delivery_method_id') {
-                if (request.file) {
-                  const photoTemp = request.file.path;
-                  dataProduct.image = photoTemp.replace('\\', '/');
-                }
-                dataProduct[value] = request.body[value];
+              if (request.file) {
+                const photoTemp = request.file.path;
+                dataProduct.image = photoTemp.replace('\\', '/');
               }
+              dataProduct[value] = request.body[value];
             }
           });
 
