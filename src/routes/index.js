@@ -1,12 +1,15 @@
-<<<<<<< HEAD
-const express = require('express');
-const route = new express.Router();
+const route = require('express').Router();
+
+route.use('/products', require('./product'));
+route.use('/auth', require('./auth'));
+route.use('/profile', require('./profile'));
+route.use('/categories', require('./category'));
+route.use('/histories', require('./histories'));
+route.use('/promotions', require('./promotion'));
+route.use('/sizeForProduct', require('./sizeForProduct'));
+route.use('/promotionDeliveryMethods', require('./promotionDeliveryMethod'));
+route.use('/promotionSizes', require('./promotionSize'));
+route.use('/producthistory', require('./productHistory'));
+route.use('/sizes', require('./size'));
 
 module.exports = route;
-=======
-const route = require('express').Router()
-
-route.use('/products', require('./product'))
-
-module.exports = route
->>>>>>> 153fdd5d145d2424bffb8b3ef55ba01d06959187
