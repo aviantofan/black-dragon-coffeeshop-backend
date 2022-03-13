@@ -1,5 +1,5 @@
-const db = require('../helpers/database')
-const { APP_URL } = process.env
+const db = require('../helpers/database');
+const { APP_URL } = process.env;
 
 
 exports.getDataPromotions = (data) => new Promise((resolve, reject) => {

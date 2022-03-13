@@ -128,8 +128,6 @@ const updatePromotion = async(request, response) => {
     try {
 
         const { id } = request.params
-
-
         if (!validator.isEmpty(id)) {
             if (validator.isNumeric(id)) {
                 const getDataPromotion = await promotionModel.getDataPromotion(id)
@@ -140,6 +138,9 @@ const updatePromotion = async(request, response) => {
 
                     filled.forEach((value) => {
                         if (request.body[value]) {
+                            if (request.file) {
+                                data.image = request.file.path
+                            }
                             data[value] = request.body[value]
                         }
                     })
