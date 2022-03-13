@@ -1,49 +1,14 @@
 const db = require('../helpers/database');
-<<<<<<< HEAD
 
-exports.insertDataSizes = (data) => new Promise((resolve, reject) => {
-  db.query('INSERT INTO sizes SET ?', [data], (err, res) => {
-    if (err) reject(err);
-    resolve(res);
-  });
-});
-
-exports.getDataSizes = () => new Promise((resolve, reject) => {
-  db.query('SELECT * FROM sizes', (err, res) => {
-    if (err) reject(err);
-    resolve(res);
-  });
-});
-
-exports.getDataSize = (id) => new Promise((resolve, reject) => {
-  db.query('SELECT * FROM sizes WHERE id=?', [id], (err, res) => {
-=======
-
-exports.getDataSize = (id) => new Promise((resolve, reject) => {
-  db.query('select * from sizes where id=?', [id], (err, res) => {
->>>>>>> 88c360bcfdbeeb104c614ec8987da2959c2b0d48
-    if (err) reject(err);
-    resolve(res);
-  });
-});
-<<<<<<< HEAD
-
-exports.updateDataSizes = (data, id) => new Promise((resolve, reject) => {
-  db.query('UPDATE sizes SET ? WHERE id=?', [data, id], (err, res) => {
-    if (err) reject(err);
-    resolve(res);
-  });
-});
-
-exports.deleteDataSizes = (id) => new Promise((resolve, reject) => {
-  db.query('DELETE FROM sizes WHERE id=?', [id], (err, res) => {
+exports.insertDataSize = (data) => new Promise((resolve, reject) => {
+  db.query('INSERT INTO sizes SET ? ', [data], (err, res) => {
     if (err) reject(err);
     resolve(res);
   });
 });
 
 exports.getDataSizes = (data) => new Promise((resolve, reject) => {
-  const query = db.query(`SELECT name FROM sizes WHERE name like '%${data.name}%' LIMIT ${data.limit} OFFSET ${data.offset}`, (error, result) => {
+  const query = db.query(`SELECT * FROM sizes WHERE name like '%${data.name}%' LIMIT ${data.limit} OFFSET ${data.offset}`, (error, result) => {
     if (error) reject(error);
     resolve(result);
   });
@@ -56,5 +21,24 @@ exports.countDataSizes = (data) => new Promise((resolve, reject) => {
     resolve(result);
   });
 });
-=======
->>>>>>> 88c360bcfdbeeb104c614ec8987da2959c2b0d48
+
+exports.getDataSize = (id) => new Promise((resolve, reject) => {
+  db.query('select * from sizes where id=?', [id], (err, res) => {
+    if (err) reject(err);
+    resolve(res);
+  });
+});
+
+exports.updateDataSize = (data, id) => new Promise((resolve, reject) => {
+  db.query('UPDATE sizes SET ? WHERE id=?', [data, id], (err, res) => {
+    if (err) reject(err);
+    resolve(res);
+  });
+});
+
+exports.deleteDataSize = (id) => new Promise((resolve, reject) => {
+  db.query('DELETE FROM sizes WHERE id=?', [id], (err, res) => {
+    if (err) reject(err);
+    resolve(res);
+  });
+});

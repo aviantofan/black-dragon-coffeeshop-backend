@@ -1,50 +1,40 @@
 const sizeModel = require('../models/size');
-const upload = require('../helpers/upload').single('image');
 const showApi = require('../helpers/showResponse');
 const validation = require('../helpers/validation');
 
-const { APP_URL } = process.env;
+const insertSize = async (req, res) => {
+  const data = {
+    name: req.body.name,
+    extra_price: parseInt(req.body.extra_price)
+  };
+  const errValidation = await validation.validationDataSize(data);
 
-const insertSize = (req, res) => {
-  upload(req, res, async (errorUpload) => {
-    const data = {
-      name: req.body.name
+  if (errValidation === null) {
+    const dataSize = {
+      name: req.body.name,
+      extra_price: parseInt(req.body.extra_price)
     };
-    let errValidation = await validation.validationDataSize(data);
-
-    if (req.file) {
-      data.image = req.file.path;
+    const resultDataSize = await sizeModel.insertDataSize(dataSize);
+    let success = false;
+    if (resultDataSize.affectedRows > 0) {
+      success = true;
     }
-    if (errorUpload) {
-      errValidation = { ...errValidation, image: errorUpload.message };
-    }
-
-    if (errValidation == null) {
-      const dataSize = {
-        name: req.body.name
-      };
-      const resultDataSize = await sizeModel.insertDataSize(dataSize);
-      let success = false;
-      if (resultDataSize.affectedRows > 0) {
-        success = true;
-      }
-      if (success) {
-        const result = await sizeModel.getDataSize(resultDataSize.insertId);
-        showApi.showResponse(res, 'Data size created successfully!', result);
-      } else {
-        showApi.showResponse(res, 'Data size failed to create!', null, null, 500);
-      }
+    if (success) {
+      const result = await sizeModel.getDataSize(resultDataSize.insertId);
+      showApi.showResponse(res, 'Data size created successfully!', result[0]);
     } else {
-      showApi.showResponse(res, 'Data size not valid', null, errValidation, 400);
+      showApi.showResponse(res, 'Data size failed to create!', null, null, 500);
     }
-  });
+  } else {
+    showApi.showResponse(res, 'Data size not valid', null, errValidation, 400);
+  }
 };
 
 const getSizes = async (req, res) => {
   let { name, page, limit } = req.query;
   name = name || '';
-  page = ((page != null && page !== '') ? parseInt(page) : 1);
-  limit = ((limit != null && limit !== '') ? parseInt(limit) : 5);
+  page = ((page != null && page != '') ? parseInt(page) : 1);
+  limit = ((limit != null && limit != '') ? parseInt(limit) : 5);
   let pagination = { page, limit };
   let route = 'sizes?';
   let searchParam = '';
@@ -54,14 +44,14 @@ const getSizes = async (req, res) => {
   route += searchParam;
 
   const errValidation = await validation.validationPagination(pagination);
-  if (errValidation == null) {
+  if (errValidation === null) {
     const offset = (page - 1) * limit;
     console.log(offset);
-    const data = { name, limit, offset };
-    const dataSize = await sizeModel.getDataSize(data);
+    const data = { name, page, limit, offset };
+    const dataSize = await sizeModel.getDataSizes(data);
 
     if (dataSize.length > 0) {
-      const result = await sizeModel.countDataSize(data);
+      const result = await sizeModel.countDataSizes(data);
       try {
         const { total } = result[0];
         pagination = { ...pagination, total: total, route: route };
@@ -87,54 +77,45 @@ const getSize = async (req, res) => {
   }
 };
 
-const updateSize = (req, res) => {
-  upload(req, res, async (errorUpload) => {
-    const { id } = req.params;
-    if (id) {
-      if (!isNaN(id)) {
-        const dataSize = await sizeModel.getDataSize(id);
-        if (dataSize.length > 0) {
-          const dataSize = {};
-          const filled = ['name'];
-          filled.forEach((value) => {
-            if (req.body[value]) {
-              if (req.file) {
-                const photoTemp = req.file.path;
-                dataSize.image = photoTemp.replace('\\', '/');
-              }
-              dataSize[value] = req.body[value];
-            }
-          });
-          try {
-            const update = await sizeModel.updateDataSize(dataSize, id);
-            let detailSize = false;
-            if (update.affectedRows > 0) {
-              detailSize = true;
-              if (detailSize) {
-                const result = await sizeModel.getDataSize(id);
-                result[0].image = `${APP_URL}/${result[0].image.replace('\\', '/')}`;
-                return showApi.showResponse(res, 'Data size updated successfully!', result[0]);
-              } else {
-                const result = await sizeModel.getDataSize(id);
-                result[0].image = `${APP_URL}/${result[0].image.replace('\\', '/')}`;
-                return showApi.showResponse(res, 'Data Size updated successfully!', result[0]);
-              }
-            } else {
-              return showApi.showResponse(res, 'Data size failed to update', null, null, 500);
-            }
-          } catch (err) {
-            return showApi.showResponse(res, err.message, null, null, 500);
+const updateSize = async (request, response) => {
+  const { id } = request.params;
+
+  if (id) {
+    if (!isNaN(id)) {
+      const dataSize = await sizeModel.getDataSize(id);
+      if (dataSize.length > 0) {
+        const data = {
+          name: request.body.name,
+          extra_price: parseInt(request.body.extra_price)
+        };
+        console.log(data);
+        const errValidation = await validation.validationDataSize(data);
+
+        if (errValidation === null) {
+          const resultDataSize = await sizeModel.updateDataSize(data, id);
+
+          let success = false;
+          if (resultDataSize.affectedRows > 0) {
+            success = true;
+          }
+          if (success) {
+            const result = await sizeModel.getDataSize(id);
+            showApi.showResponse(response, 'Data size update success!', result);
+          } else {
+            showApi.showResponse(response, 'Data size to update!', 500);
           }
         } else {
-          return showApi.showResponse(res, 'Data size not found', null, null, 400);
+          showApi.showResponse(response, 'Data promotion delivery method not valid', null, errValidation, 400);
         }
       } else {
-        return showApi.showResponse(res, 'Id must be a number', null, null, 400);
+        return showApi.showResponse(response, 'Data promotion delivery method not found', null, null, 400);
       }
     } else {
-      return showApi.showResponse(res, 'Id must be filled.', null, null, 400);
+      return showApi.showResponse(response, 'Id must be a number', null, null, 400);
     }
-  });
+  } else {
+    return showApi.showResponse(response, 'Id must be filled.', null, null, 400);
+  }
 };
 
 const deleteSize = async (request, response) => {
