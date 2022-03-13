@@ -71,6 +71,21 @@ const productModel = require('../models/product');
 //   return result
 // }
 
+exports.validationDataTax = async (data) => {
+  let result = null;
+  if (data.name === null || data.name === '') {
+    result = {
+      name: 'Name must be filled'
+    };
+  }
+  if (!data.value) {
+    result = {
+      value: 'Invalid input'
+    };
+  }
+  return result;
+};
+
 exports.validationDataPromotionDeliveryMethods = async (data) => {
   let result = null;
   if (data.promotion_id == null || data.promotion_id === undefined) {
@@ -220,7 +235,7 @@ exports.validationLogin = async (data) => {
       price: 'Price must be must be greater than 0.'
     };
   }
-  
+
   if (data.stocks === null || data.stocks === '') {
     result = {
       ...result,
@@ -237,7 +252,7 @@ exports.validationLogin = async (data) => {
       stocks: 'Stock must be must be greater than 0.'
     };
   }
-  
+
   if (data.delivery_time_start === null || data.delivery_time_start === '') {
     result = {
       ...result,
