@@ -118,6 +118,21 @@ exports.validationDataProducts = async (data) => {
   return result;
 };
 
+exports.validationDataTax = async (data) => {
+  let result = null;
+  if (data.name === null || data.name === '') {
+    result = {
+      name: 'Name must be filled'
+    };
+  }
+  if (!data.value) {
+    result = {
+      value: 'Invalid input'
+    };
+  }
+  return result;
+};
+
 exports.validationDataPromotionDeliveryMethods = async (data) => {
   let result = null;
   if (data.promotion_id == null || data.promotion_id === undefined) {
