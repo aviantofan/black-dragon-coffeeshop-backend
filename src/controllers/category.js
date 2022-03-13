@@ -3,7 +3,9 @@ const upload = require('../helpers/upload').single('image');
 const showApi = require('../helpers/showResponse');
 const validation = require('../helpers/validation');
 
-const { APP_URL } = process.env;
+const {
+  APP_URL
+} = process.env;
 
 const insertCategory = (req, res) => {
   upload(req, res, async (errorUpload) => {
@@ -16,13 +18,23 @@ const insertCategory = (req, res) => {
       data.image = req.file.path;
     }
     if (errorUpload) {
-      errValidation = { ...errValidation, image: errorUpload.message };
+      errValidation = {
+        ...errValidation,
+        image: errorUpload.message
+      };
     }
 
-    if (errValidation == null) {
+    if (errValidation === null) {
       const dataCategory = {
         name: req.body.name
       };
+
+      const registeredName = await categoryModel.getDataCategoryByName(dataCategory.name);
+
+      if (registeredName.length > 0) {
+        return showApi.showResponse(res, 'Category already registered', null, null, 400);
+      }
+
       const resultDataCategory = await categoryModel.insertDataCategory(dataCategory);
       let success = false;
       if (resultDataCategory.affectedRows > 0) {
@@ -30,7 +42,7 @@ const insertCategory = (req, res) => {
       }
       if (success) {
         const result = await categoryModel.getDataCategory(resultDataCategory.insertId);
-        showApi.showResponse(res, 'Data category created successfully!', result);
+        showApi.showResponse(res, 'Data category created successfully!', result[0]);
       } else {
         showApi.showResponse(res, 'Data category failed to create!', null, null, 500);
       }
@@ -41,11 +53,18 @@ const insertCategory = (req, res) => {
 };
 
 const getCategories = async (req, res) => {
-  let { name, page, limit } = req.query;
+  let {
+    name,
+    page,
+    limit
+  } = req.query;
   name = name || '';
-  page = ((page != null && page !== '') ? parseInt(page) : 1);
-  limit = ((limit != null && limit !== '') ? parseInt(limit) : 5);
-  let pagination = { page, limit };
+  page = ((page !== null && page !== '') ? parseInt(page) : 1);
+  limit = ((limit !== null && limit !== '') ? parseInt(limit) : 5);
+  let pagination = {
+    page,
+    limit
+  };
   let route = 'categories?';
   let searchParam = '';
   if (name) {
@@ -54,17 +73,27 @@ const getCategories = async (req, res) => {
   route += searchParam;
 
   const errValidation = await validation.validationPagination(pagination);
-  if (errValidation == null) {
+  if (errValidation === null) {
     const offset = (page - 1) * limit;
     console.log(offset);
-    const data = { name, limit, offset };
-    const dataCategory = await categoryModel.getDataCategory(data);
+    const data = {
+      name,
+      limit,
+      offset
+    };
+    const dataCategory = await categoryModel.getDataCategories(data);
 
     if (dataCategory.length > 0) {
-      const result = await categoryModel.countDataCategory(data);
+      const result = await categoryModel.countDataCategories(data);
       try {
-        const { total } = result[0];
-        pagination = { ...pagination, total: total, route: route };
+        const {
+          total
+        } = result[0];
+        pagination = {
+          ...pagination,
+          total: total,
+          route: route
+        };
         return showApi.showResponseWithPagination(res, 'List Data Category', dataCategory, pagination);
       } catch (err) {
         return showApi.showResponse(res, err.message, null, 500);
@@ -78,8 +107,10 @@ const getCategories = async (req, res) => {
 };
 
 const getCategory = async (req, res) => {
-  const { id } = req.params;
-  const result = await categoryModel.getDatacategory(id);
+  const {
+    id
+  } = req.params;
+  const result = await categoryModel.getDataCategory(id);
   if (result.length > 0) {
     return showApi.showResponse(res, 'Detail category', result[0]);
   } else {
@@ -89,10 +120,12 @@ const getCategory = async (req, res) => {
 
 const updateCategory = (req, res) => {
   upload(req, res, async (errorUpload) => {
-    const { id } = req.params;
+    const {
+      id
+    } = req.params;
     if (id) {
       if (!isNaN(id)) {
-        const dataCategory = await categoryModel.getDatacategory(id);
+        const dataCategory = await categoryModel.getDataCategory(id);
         if (dataCategory.length > 0) {
           const dataCategory = {};
           const filled = ['name'];
@@ -112,11 +145,15 @@ const updateCategory = (req, res) => {
               detailCategory = true;
               if (detailCategory) {
                 const result = await categoryModel.getDataCategory(id);
-                result[0].image = `${APP_URL}/${result[0].image.replace('\\', '/')}`;
+                if (result[0].image) {
+                  result[0].image = `${APP_URL}/${result[0].image.replace('\\', '/')}`;
+                }
                 return showApi.showResponse(res, 'Data category updated successfully!', result[0]);
               } else {
                 const result = await categoryModel.getDataCategory(id);
-                result[0].image = `${APP_URL}/${result[0].image.replace('\\', '/')}`;
+                if (result[0].image) {
+                  result[0].image = `${APP_URL}/${result[0].image.replace('\\', '/')}`;
+                }
                 return showApi.showResponse(res, 'Data category updated successfully!', result[0]);
               }
             } else {
@@ -138,7 +175,9 @@ const updateCategory = (req, res) => {
 };
 
 const deleteCategory = async (request, response) => {
-  const { id } = request.params;
+  const {
+    id
+  } = request.params;
 
   const getDataCategory = await categoryModel.getDataCategory(id);
   let success = false;
@@ -147,8 +186,8 @@ const deleteCategory = async (request, response) => {
     if (success) {
       const resultDataCategory = await categoryModel.deleteDataCategory(id);
       if (resultDataCategory.affectedRows > 0) {
-        const result = await categoryModel.getDataCategory(id);
-        showApi.showResponse(response, 'Data category deleted successfully!', result);
+        // const result = await categoryModel.getDataCategory(id);
+        showApi.showResponse(response, 'Data category deleted successfully!', getDataCategory[0]);
       } else {
         showApi.showResponse(response, 'Data category failed to delete!', null, 500);
       }
@@ -158,4 +197,10 @@ const deleteCategory = async (request, response) => {
   }
 };
 
-module.exports = { insertCategory, getCategories, getCategory, updateCategory, deleteCategory };
+module.exports = {
+  insertCategory,
+  getCategories,
+  getCategory,
+  updateCategory,
+  deleteCategory
+};

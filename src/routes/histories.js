@@ -1,5 +1,7 @@
 const histories = require('express').Router();
-const { verifyUser } = require('../helpers/auth');
+const {
+  verifyUser
+} = require('../helpers/auth');
 
 const {
   getHistories
