@@ -9,11 +9,12 @@ const {
   updatePatchSizeForUpdate,
   deleteSizeForProduct
 } = require('../controllers/sizeForProduct');
+const { verify } = require('jsonwebtoken');
 
 sizeForProduct.get('/:idProduct', getSizeForProductsByIdProduct); // get all size by id product
-sizeForProduct.post('/', insertSizeForProduct);
-sizeForProduct.put('/:id', updateDataProductSize);
-sizeForProduct.patch('/:id', updatePatchSizeForUpdate);
-sizeForProduct.delete('/:id', deleteSizeForProduct);
+sizeForProduct.post('/', verifyUser, insertSizeForProduct);
+sizeForProduct.put('/:id', verifyUser, updateDataProductSize);
+sizeForProduct.patch('/:id', verifyUser, updatePatchSizeForUpdate);
+sizeForProduct.delete('/:id', verifyUser, deleteSizeForProduct);
 
 module.exports = sizeForProduct;
