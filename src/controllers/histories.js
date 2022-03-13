@@ -1,6 +1,11 @@
 const historyModel = require('../models/histories');
 const showApi = require('../helpers/showResponse');
 const validation = require('../helpers/validation');
+const userModel = require('../models/user');
+const authModel = require('../models/authModel');
+const {
+  requestMapping
+} = require('../helpers/requestHandler');
 
 exports.getHistories = async (request, response) => {
   let {
@@ -51,6 +56,28 @@ exports.getHistories = async (request, response) => {
       sort,
       order
     };
+
+    const authUser = request.headers.user;
+
+    if (authUser) {
+      if (authUser.role !== 'admin') {
+        const userProfile = await userModel.getUserProfile(authUser.id);
+
+        if (userProfile.length > 0) {
+          data.userId = userProfile[0].id;
+        } else {
+          return showApi.showResponse(response, 'User not found', null, null, 404);
+        }
+      } else {
+        const checkRole = await authModel.getUserById(authUser.id);
+        if (checkRole.length < 1) {
+          return showApi.showResponse(response, 'User does\'nt have permission for this request', null, null, 403);
+        }
+      }
+    }
+
+    // console.log(data);
+
     const dataProduct = await historyModel.getDataHistoriesByFilter(data);
 
     if (dataProduct.length > 0) {
@@ -78,7 +105,168 @@ exports.getHistories = async (request, response) => {
 
 exports.getHistoriesById = async (request, response) => {
   try {
+    const {
+      id
+    } = request.params;
 
+    const authUser = request.headers.user;
+    let userId = '';
+
+    if (authUser) {
+      if (authUser.role !== 'admin') {
+        const userProfile = await userModel.getUserProfile(authUser.id);
+        if (userProfile.length > 0) {
+          userId = userProfile[0].id;
+        } else {
+          return showApi.showResponse(response, 'User not found', null, null, 404);
+        }
+      } else {
+        const checkRole = await authModel.getUserById(authUser.id);
+        if (checkRole.length < 1) {
+          return showApi.showResponse(response, 'User does\'nt have permission for this request', null, null, 403);
+        }
+      }
+    }
+
+    const data = await historyModel.getDataHistoryById(id, userId);
+
+    if (data.length > 0) {
+      return showApi.showResponse(response, 'List Data Product', data[0], 200);
+    } else {
+      return showApi.showResponse(response, 'Data not found', null, 404);
+    }
+  } catch (error) {
+    console.error(error);
+    return showApi.showResponse(response, error.message, null, null, 500);
+  }
+};
+
+exports.insertHistories = async (request, response) => {
+  try {
+    const rules = {
+      delivery_time: 'datetime|required',
+      subtotal: 'number|required',
+      total: 'number|required',
+      reservation_time: 'datetime|required',
+      shipping_cost: 'number|required',
+      tax_id: 'number|required',
+      delivery_method_id: 'number|required',
+      payment_method_id: 'number|required'
+    };
+
+    const data = requestMapping(request.body, rules);
+
+    const nullData = validation.noNullData(data, rules);
+    if (nullData) {
+      return showApi.showResponse(response, nullData, null, null, 400);
+    }
+
+    const authId = request.headers.user.id;
+    const userProfile = await userModel.getUserProfile(authId);
+
+    if (userProfile.length > 0) {
+      data.user_profile_id = userProfile[0].id;
+    } else {
+      return showApi.showResponse(response, 'User not found', null, null, 404);
+    }
+
+    // tambahkan validasi untuk mengecek taxe_id, delivery_method_id dan payment_method_id
+
+    data.payment_status = '0';
+    data.delivery_status = '0';
+    console.log(data);
+    const insertedHistories = await historyModel.insertDataHistory(data);
+
+    if (insertedHistories.affectedRows > 0) {
+      const histories = await historyModel.getDataHistoryById(insertedHistories.insertId);
+
+      return showApi.showResponse(response, 'Data inserted', histories[0], null, 201);
+    }
+
+    return showApi.showResponse(response, 'Data not inserted', null, null, 400);
+  } catch (error) {
+    console.error(error);
+    return showApi.showResponse(response, error.message, null, null, 500);
+  }
+};
+
+exports.updateDataHistory = async (request, response) => {
+  try {
+    const {
+      id
+    } = request.params;
+
+    if (!id) {
+      return showApi.showResponse(response, 'Id not history found', null, null, 404);
+    }
+
+    const rules = {
+      payment_status: 'boolean|required',
+      delivery_status: 'boolean|required'
+    };
+
+    const data = requestMapping(request.body, rules);
+
+    const nullData = validation.noNullData(data, rules);
+    if (nullData) {
+      return showApi.showResponse(response, nullData, null, null, 400);
+    }
+
+    const authId = request.headers.user.id;
+    const userProfile = await userModel.getUserProfile(authId);
+
+    if (userProfile.length > 0) {
+      data.user_profile_id = userProfile[0].id;
+    } else {
+      return showApi.showResponse(response, 'User not found', null, null, 404);
+    }
+
+    data.id = id;
+    const insertedHistories = await historyModel.updateDataHistory(data);
+
+    if (insertedHistories.affectedRows > 0) {
+      const histories = await historyModel.getDataHistoryById(id);
+
+      return showApi.showResponse(response, 'Data inserted', histories[0], null, 201);
+    }
+
+    return showApi.showResponse(response, 'Data not inserted', null, null, 400);
+  } catch (error) {
+    console.error(error);
+    return showApi.showResponse(response, error.message, null, null, 500);
+  }
+};
+
+exports.deleteDataHistory = async (request, response) => {
+  try {
+    const {
+      id
+    } = request.params;
+
+    if (!id) {
+      return showApi.showResponse(response, 'Id not history found', null, null, 404);
+    }
+
+    const authId = request.headers.user.id;
+    const userProfile = await userModel.getUserProfile(authId);
+
+    if (userProfile.length < 1) {
+      return showApi.showResponse(response, 'User not found', null, null, 404);
+    }
+
+    const history = await historyModel.getDataHistoryById(id);
+
+    if (history.length < 1) {
+      return showApi.showResponse(response, 'History not found', null, null, 404);
+    }
+
+    const deletedHistories = await historyModel.deleteDataHistory(id);
+
+    if (deletedHistories.affectedRows > 0) {
+      return showApi.showResponse(response, 'History deleted', history[0], null, 200);
+    }
+
+    return showApi.showResponse(response, 'History not deleted', null, null, 400);
   } catch (error) {
     console.error(error);
     return showApi.showResponse(response, error.message, null, null, 500);
