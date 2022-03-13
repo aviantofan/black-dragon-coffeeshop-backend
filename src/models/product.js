@@ -244,3 +244,33 @@ exports.countListProduct = (data) => {
     });
   });
 };
+
+exports.getDataFavorites = (data) => new Promise((resolve, reject) => {
+  const filled = ['histroy_id'];
+  let resultFillter = '';
+  filled.forEach((item) => {
+    if (data.filter[item]) {
+      resultFillter += ` and ${item}='${data.filter[item]}'`;
+    }
+  });
+
+  const query = db.query(`SELECT p.name AS name, p.price AS price, p.image AS image, p.category_id AS categoryId, COUNT(*) AS orderCount FROM product_histories ph LEFT JOIN products p ON p.id = ph.product_id WHERE p.name like '%${data.name}%' ${resultFillter} GROUP BY ph.product_id HAVING COUNT(*) >= 2 order by ${data.order} DESC LIMIT ${data.limit} OFFSET ${data.offset}`, (error, result) => {
+    if (error) reject(error);
+    resolve(result);
+  });
+  console.log(query.sql);
+});
+
+exports.countDataFavorites = (data) => new Promise((resolve, reject) => {
+  const filled = ['histroy_id'];
+  let resultFillter = '';
+  filled.forEach((item) => {
+    if (data.filter[item]) {
+      resultFillter += ` and ${item}='${data.filter[item]}'`;
+    }
+  });
+  db.query(`select count(*) as total FROM(SELECT p.name AS name, p.price AS price, p.image AS image, p.category_id AS categoryId, COUNT(*) AS orderCount FROM product_histories ph LEFT JOIN products p ON p.id = ph.product_id WHERE p.name like '%${data.name}%' ${resultFillter} GROUP BY ph.product_id HAVING COUNT(*) >= 2 ORDER BY ${data.order} DESC) AS favorite`, (error, result) => {
+    if (error) reject(error);
+    resolve(result);
+  });
+});

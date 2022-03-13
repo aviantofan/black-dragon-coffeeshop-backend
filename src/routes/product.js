@@ -13,7 +13,8 @@ const {
   updatePatchProduct,
   deleteProduct,
   getFilterData,
-  listProduct
+  listProduct,
+  getFavorites
 } = require('../controllers/product');
 
 // products.get('/', getProducts);
@@ -24,5 +25,6 @@ products.post('/', insertProduct);
 products.put('/:id', updateProduct);
 products.patch('/:id', updatePatchProduct);
 products.delete('/:id', deleteProduct);
+products.get('/f/favorite', getFavorites);
 
 module.exports = products;
