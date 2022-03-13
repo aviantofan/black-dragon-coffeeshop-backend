@@ -9,7 +9,7 @@ const {
 
 exports.showResponse = (res, message, result, error = null, status = 200, deleteImage = false) => {
   // console.error(error);
-  let success = true;
+  let success = status < 400;
   const data = {
     success,
     message
@@ -20,7 +20,9 @@ exports.showResponse = (res, message, result, error = null, status = 200, delete
     if (deleteImage) {
       deleteFile(deleteImage);
     }
-    // data.error = error;
+    if (error) {
+      data.error = error;
+    }
   }
 
   if (result) {
