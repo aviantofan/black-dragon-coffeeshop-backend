@@ -9,10 +9,10 @@ const {
   deleteProductHistory
 } = require('../controllers/productHistory');
 
-productHistory.get('/:idHistory', getProductHistoriesByIdHistory); // get all data product history by id history
-productHistory.post('/', insertProductHistory);
-productHistory.put('/:id', updateDataProductHistory);
-productHistory.patch('/:id', updatePatchProductHistory);
-productHistory.delete('/:id', deleteProductHistory);
+productHistory.get('/:idHistory', verifyUser, getProductHistoriesByIdHistory); // get all data product history by id history
+productHistory.post('/', verifyUser, insertProductHistory);
+productHistory.put('/:id', verifyUser, updateDataProductHistory);
+productHistory.patch('/:id', verifyUser, updatePatchProductHistory);
+productHistory.delete('/:id', verifyUser, deleteProductHistory);
 
 module.exports = productHistory;
