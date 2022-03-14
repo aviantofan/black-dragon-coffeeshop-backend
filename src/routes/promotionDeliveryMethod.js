@@ -1,17 +1,19 @@
 const promotionDeliveryMethods = require('express').Router();
 
 const {
-  insertPromotionDeliveryMethod,
-  getPromotionDeliveryMethods,
-  getListPromotionDeliveryMethodByIdPromotion,
-  getPromotionDeliveryMethod,
-  updatePatchPromotionDeliveryMethod2,
-  // updatePatchPromotionDeliveryMethod,
-  // deletePromotionDeliveryMethod
-  deletePromotionDeliveryMethod2
+    // insertPromotionDeliveryMethod,
+    insertPromotionDeliveryMethod2,
+    getPromotionDeliveryMethods,
+    getListPromotionDeliveryMethodByIdPromotion,
+    getPromotionDeliveryMethod,
+    updatePatchPromotionDeliveryMethod2,
+    // updatePatchPromotionDeliveryMethod,
+    // deletePromotionDeliveryMethod
+    deletePromotionDeliveryMethod2
 } = require('../controllers/promotionDeliveryMethod');
 
-promotionDeliveryMethods.post('/', insertPromotionDeliveryMethod);
+// promotionDeliveryMethods.post('/', insertPromotionDeliveryMethod);
+promotionDeliveryMethods.post('/', insertPromotionDeliveryMethod2)
 promotionDeliveryMethods.get('/', getPromotionDeliveryMethods);
 promotionDeliveryMethods.get('/:id', getPromotionDeliveryMethod);
 promotionDeliveryMethods.get('/promo/:idPromotion', getListPromotionDeliveryMethodByIdPromotion);

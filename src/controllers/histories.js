@@ -91,7 +91,7 @@ exports.getHistories = async (request, response) => {
           total: total,
           route: route
         };
-        return showApi.showResponseWithPagination(response, 'List Data Product', dataProduct, pagination);
+        return showApi.showResponseWithPagination(response, 'List Data Product', showApi.dataMapping(dataProduct), pagination);
       } catch (err) {
         return showApi.showResponse(response, err.message, null, 500);
       }
