@@ -7,12 +7,15 @@ exports.insertDataSize = (data) => new Promise((resolve, reject) => {
   });
 });
 
-exports.getDataSizes = (data) => new Promise((resolve, reject) => {
-  const query = db.query(`SELECT * FROM sizes WHERE name like '%${data.name}%' LIMIT ${data.limit} OFFSET ${data.offset}`, (error, result) => {
+exports.getDataSizes = () => new Promise((resolve, reject) => {
+  const query = `
+    SELECT id, name FROM sizes
+  `;
+  const ss = db.query(query, (error, result) => {
     if (error) reject(error);
     resolve(result);
   });
-  console.log(query.sql);
+  console.log(ss.sql);
 });
 
 exports.countDataSizes = (data) => new Promise((resolve, reject) => {
