@@ -189,8 +189,6 @@ const insertProduct = async (request, response) => {
       category_id: request.body.categoryId
     };
 
-    console.log(request.file);
-
     let errValidation = await validation.validationDataProducts(data);
     // let errValidation = validation.validationDataProducts(data);
 
