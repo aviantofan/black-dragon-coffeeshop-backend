@@ -1,8 +1,10 @@
+// const queryString = require('qs');
 const productModel = require('../models/product');
 const showApi = require('../helpers/showResponse');
 const upload = require('../helpers/upload').single('image');
 // const auth = require('../helpers/auth');
 const validation = require('../helpers/validation');
+const validator = require('validator');
 
 const {
   APP_URL
@@ -133,6 +135,7 @@ const getProducts = async (request, response) => {
       sort,
       order
     };
+    // console.log(data);
     const dataProduct = await productModel.getDataProducts(data);
 
     if (dataProduct.length > 0) {
@@ -163,9 +166,13 @@ const getProduct = async (request, response) => {
     id
   } = request.params;
 
+  if (!id || !validator.isInt(id)) {
+    return showApi.showResponse(response, 'Id not valid', null, null, 400);
+  }
+
   const result = await productModel.getDataProduct(id);
   if (result.length > 0) {
-    return showApi.showResponse(response, 'Detail Product', result[0]);
+    return showApi.showResponse(response, 'Detail Product', showApi.dataMapping(result)[0]);
   } else {
     return showApi.showResponse(response, 'Detail Product not found!', null, 404);
   }
@@ -187,9 +194,6 @@ const insertProduct = async (request, response) => {
     let errValidation = await validation.validationDataProducts(data);
     // let errValidation = validation.validationDataProducts(data);
 
-    if (request.file) {
-      data.image = request.file.path;
-    }
     if (errorUpload) {
       errValidation = {
         ...errValidation,
@@ -207,6 +211,11 @@ const insertProduct = async (request, response) => {
         delivery_time_end: request.body.deliveryTimeEnd,
         category_id: request.body.categoryId
       };
+
+      if (request.file) {
+        dataProduct.image = request.file.path.replace(/\\/g, '/');
+      }
+
       // const resultDataProduct = await productModel.insertDataProduct(dataProduct);
       const resultDataProduct = await productModel.insertDataProduct(dataProduct);
       let success = false;
@@ -215,7 +224,7 @@ const insertProduct = async (request, response) => {
       }
       if (success) {
         const result = await productModel.getDataProduct(resultDataProduct.insertId);
-        showApi.showResponse(response, 'Data product created successfully!', result[0]);
+        showApi.showResponse(response, 'Data product created successfully!', showApi.dataMapping(result)[0]);
       } else {
         showApi.showResponse(response, 'Data product failed to create!', null, null, 500);
       }
@@ -360,6 +369,120 @@ const deleteProduct = async (request, response) => {
   }
 };
 
+const listProduct = async (request, response) => {
+  try {
+    const {
+      page,
+      limit
+    } = request.query;
+
+    if (!page) {
+      return showApi.showResponse(response, 'Page must be filled', null, null, 400);
+    }
+
+    if (!limit) {
+      return showApi.showResponse(response, 'Limit must be filled', null, null, 400);
+    }
+
+    const dataForFilter = {
+      page: parseInt(page),
+      limit: parseInt(limit),
+      name: request.query.name || null,
+      category_id: request.query.category_id || null
+    };
+
+    // console.log(dataForFilter);
+
+    const result = await productModel.listProduct(dataForFilter);
+    const total = await productModel.countListProduct(dataForFilter);
+
+    if (result.length < 1) {
+      return showApi.showResponse(response, 'Data product not found', null, null, 404);
+    }
+
+    // const uri = queryString.stringify(dataForFilter);
+    // console.log(uri);
+
+    const pageInfo = showApi.pageInfoCreator(total[0].total, 'products', dataForFilter);
+
+    return showApi.returningSuccess(response, 200, 'Data product retrieved successfully!', showApi.dataMapping(result), pageInfo);
+  } catch (error) {
+    console.error(error);
+    return showApi.showResponse(response, error.message, null, null, 500);
+  }
+};
+
+const getFavorites = async (request, response) => {
+  let {
+    name,
+    page,
+    limit,
+    order
+  } = request.query;
+  name = name || '';
+  const filledFilter = ['history_id'];
+  const filter = {};
+  page = ((page !== null && page !== '') ? parseInt(page) : 1);
+  limit = ((limit !== null && limit !== '') ? parseInt(limit) : 5);
+  order = order || 'orderCount';
+  let pagination = {
+    page,
+    limit
+  };
+  let route = 'products?';
+  let searchParam = '';
+  if (name) {
+    searchParam = `name=${name}`;
+  }
+
+  filledFilter.forEach((item) => {
+    if (request.query[item]) {
+      filter[item] = request.query[item];
+      if (searchParam === '') {
+        searchParam += `${item}=${filter[item]}`;
+      } else {
+        searchParam += `&${item}=${filter[item]}`;
+      }
+    }
+  });
+  route += searchParam;
+
+  const errValidation = await validation.validationPagination(pagination);
+  if (errValidation === null) {
+    const offset = (page - 1) * limit;
+    console.log(offset);
+    const data = {
+      name,
+      filter,
+      limit,
+      offset,
+      order
+    };
+    const dataFavorite = await productModel.getDataFavorites(data);
+    console.log(dataFavorite);
+    if (dataFavorite.length > 0) {
+      const result = await productModel.countDataFavorites(data);
+      try {
+        const {
+          total
+        } = result[0];
+        pagination = {
+          ...pagination,
+          total: total,
+          route: route
+        };
+        return showApi.showResponseWithPagination(response, 'List Data Product Favorites', dataFavorite, pagination);
+      } catch (err) {
+        return showApi.showResponse(response, err.message, null, 500);
+      }
+    } else {
+      return showApi.showResponse(response, 'List Data Product Favorites', null, 404);
+    }
+  } else {
+    showApi.showResponse(response, 'Pagination was not valid.', null, validation.validationPagination(pagination), 400);
+  }
+};
+
 module.exports = {
   getProducts,
   getProduct,
@@ -367,5 +490,7 @@ module.exports = {
   updateProduct,
   updatePatchProduct,
   deleteProduct,
-  getFilterData
+  getFilterData,
+  listProduct,
+  getFavorites
 };

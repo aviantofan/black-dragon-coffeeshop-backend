@@ -6,21 +6,25 @@ const {
 // const { verifyUser } = require('../helpers/auth');
 
 const {
-  getProducts,
+  // getProducts,
   getProduct,
   insertProduct,
   updateProduct,
   updatePatchProduct,
   deleteProduct,
-  getFilterData
+  getFilterData,
+  listProduct,
+  getFavorites
 } = require('../controllers/product');
 
-products.get('/', getProducts);
+// products.get('/', getProducts);
+products.get('/', listProduct);
 products.get('/filter', getFilterData);
 products.get('/:id', getProduct);
 products.post('/', insertProduct);
 products.put('/:id', updateProduct);
 products.patch('/:id', updatePatchProduct);
 products.delete('/:id', deleteProduct);
+products.get('/f/favorite', getFavorites);
 
 module.exports = products;

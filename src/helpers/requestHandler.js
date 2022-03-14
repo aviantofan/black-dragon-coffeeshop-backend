@@ -112,6 +112,14 @@ exports.requestMapping = (data, rules) => {
           dump[k] = null;
         }
       }
+      if (rules[k].includes('time')) {
+        const regexPattern = /(?:[01]\d|2[0123]):(?:[012345]\d):(?:[012345]\d)$/;
+        if (regexPattern.test(data[k])) {
+          dump[k] = data[k];
+        } else {
+          dump[k] = null;
+        }
+      }
     }
   }
 

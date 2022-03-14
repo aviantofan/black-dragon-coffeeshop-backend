@@ -3,6 +3,24 @@ const {
   APP_URL
 } = process.env;
 
+// exports.getDataProducts = (data) => new Promise((resolve, reject) => {
+//   const filled = ['price', 'stocks', 'time', 'category_id'];
+//   let resultFillter = '';
+//   filled.forEach((item) => {
+//     if (data.filter[item]) {
+//       resultFillter += ` and ${item}='${data.filter[item]}'`;
+//     }
+//   });
+
+//   const query = db.query(`select p.id,p.name,p.price,concat('${APP_URL}/',image) as image,p.stocks,p.delivery_time_start,p.delivery_time_end,p.category_id,c.name categpry
+//     from products p join categories c on c.id = p.category_id
+//     where p.name like '%${data.name}%' ${resultFillter}
+//    order by ${data.sort} ${data.order} LIMIT ${data.limit} OFFSET ${data.offset}`, (error, result) => {
+//     if (error) reject(error);
+//     resolve(result);
+//   });
+//   console.log(query.sql);
+// });
 exports.getDataProducts = (data) => new Promise((resolve, reject) => {
   const filled = ['price', 'stocks', 'time', 'category_id'];
   let resultFillter = '';
@@ -12,10 +30,12 @@ exports.getDataProducts = (data) => new Promise((resolve, reject) => {
     }
   });
 
-  const query = db.query(`select p.id,p.name,p.price,concat('${APP_URL}/',image) as image,p.stocks,p.delivery_time_start,p.delivery_time_end,p.category_id,c.name categpry
+  const query = db.query(`select p.name,p.price,concat('${APP_URL}/',image) as image,p.category_id
     from products p join categories c on c.id = p.category_id
     where p.name like '%${data.name}%' ${resultFillter}
-   order by ${data.sort} ${data.order} LIMIT ${data.limit} OFFSET ${data.offset}`, (error, result) => {
+    order by ${data.sort} ${data.order} LIMIT ${data.limit} OFFSET ${data.offset}
+    
+    `, (error, result) => {
     if (error) reject(error);
     resolve(result);
   });
@@ -41,7 +61,12 @@ exports.countDataProducts = (data) => new Promise((resolve, reject) => {
 });
 
 exports.getDataProduct = (id) => new Promise((resolve, reject) => {
-  db.query('select * from products where id=?', [id], (err, res) => {
+  const query = `
+  SELECT *
+  FROM products WHERE id=?
+  `;
+
+  db.query(query, [id], (err, res) => {
     if (err) reject(err);
     resolve(res);
   });
@@ -177,3 +202,80 @@ exports.countFilter = (data) => new Promise((resolve, reject) => {
 //     resolve(result)
 //   })
 // })
+
+exports.listProduct = (data) => {
+  return new Promise((resolve, reject) => {
+    const {
+      limit,
+      page,
+      name,
+      category_id: categoryId
+    } = data;
+    const offset = (page - 1) * limit;
+
+    const query = `
+      SELECT p.id, p.name, p.price, p.image
+      FROM products p
+      LEFT JOIN categories c 
+      ON p.category_id = c.id
+      WHERE p.name LIKE '%${name || ''}%'
+      ${categoryId ? `AND c.id = ${categoryId}` : ''}
+      LIMIT ${limit} OFFSET ${offset}
+    `;
+
+    const ss = db.query(query, (error, result) => {
+      if (error) reject(error);
+      resolve(result);
+    });
+    console.log(ss.sql);
+  });
+};
+
+exports.countListProduct = (data) => {
+  return new Promise((resolve, reject) => {
+    const {
+      name
+    } = data;
+
+    const query = `
+      SELECT COUNT(*) AS total
+      FROM products p
+      WHERE p.name LIKE '%${name || ''}%'
+    `;
+
+    db.query(query, (error, result) => {
+      if (error) reject(error);
+      resolve(result);
+    });
+  });
+};
+
+exports.getDataFavorites = (data) => new Promise((resolve, reject) => {
+  const filled = ['histroy_id'];
+  let resultFillter = '';
+  filled.forEach((item) => {
+    if (data.filter[item]) {
+      resultFillter += ` and ${item}='${data.filter[item]}'`;
+    }
+  });
+
+  const query = db.query(`SELECT p.name AS name, p.price AS price, p.image AS image, p.category_id AS categoryId, COUNT(*) AS orderCount FROM product_histories ph LEFT JOIN products p ON p.id = ph.product_id WHERE p.name like '%${data.name}%' ${resultFillter} GROUP BY ph.product_id HAVING COUNT(*) >= 2 order by ${data.order} DESC LIMIT ${data.limit} OFFSET ${data.offset}`, (error, result) => {
+    if (error) reject(error);
+    resolve(result);
+  });
+  console.log(query.sql);
+});
+
+exports.countDataFavorites = (data) => new Promise((resolve, reject) => {
+  const filled = ['histroy_id'];
+  let resultFillter = '';
+  filled.forEach((item) => {
+    if (data.filter[item]) {
+      resultFillter += ` and ${item}='${data.filter[item]}'`;
+    }
+  });
+  db.query(`select count(*) as total FROM(SELECT p.name AS name, p.price AS price, p.image AS image, p.category_id AS categoryId, COUNT(*) AS orderCount FROM product_histories ph LEFT JOIN products p ON p.id = ph.product_id WHERE p.name like '%${data.name}%' ${resultFillter} GROUP BY ph.product_id HAVING COUNT(*) >= 2 ORDER BY ${data.order} DESC) AS favorite`, (error, result) => {
+    if (error) reject(error);
+    resolve(result);
+  });
+});
