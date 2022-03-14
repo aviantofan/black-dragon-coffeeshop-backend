@@ -23,7 +23,7 @@ products.get('/:id', getProduct);
 products.post('/', verifyAdmin, insertProduct);
 products.put('/:id', verifyAdmin, updateProduct);
 products.patch('/:id', verifyAdmin, updatePatchProduct);
-products.delete('/:id', deleteProduct);
+products.delete('/:id', verifyAdmin, deleteProduct);
 products.get('/f/favorite', getFavorites);
 
 module.exports = products;
