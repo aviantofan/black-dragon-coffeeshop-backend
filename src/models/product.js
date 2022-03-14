@@ -257,7 +257,7 @@ exports.getDataFavorites = (data) => new Promise((resolve, reject) => {
     }
   });
 
-  const query = db.query(`SELECT p.name AS name, p.price AS price, p.image AS image, p.category_id AS categoryId, COUNT(*) AS orderCount FROM product_histories ph LEFT JOIN products p ON p.id = ph.product_id WHERE p.name like '%${data.name}%' ${resultFillter} GROUP BY ph.product_id HAVING COUNT(*) >= 2 order by ${data.order} DESC LIMIT ${data.limit} OFFSET ${data.offset}`, (error, result) => {
+  const query = db.query(`SELECT p.id, p.name AS name, p.price AS price, p.image AS image, p.category_id AS categoryId, COUNT(*) AS orderCount FROM product_histories ph LEFT JOIN products p ON p.id = ph.product_id WHERE p.name like '%${data.name}%' ${resultFillter} GROUP BY ph.product_id HAVING COUNT(*) >= 2 order by ${data.order} DESC LIMIT ${data.limit} OFFSET ${data.offset}`, (error, result) => {
     if (error) reject(error);
     resolve(result);
   });

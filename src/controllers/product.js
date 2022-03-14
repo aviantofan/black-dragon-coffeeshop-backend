@@ -478,7 +478,7 @@ const getFavorites = async (request, response) => {
         return showApi.showResponse(response, err.message, null, 500);
       }
     } else {
-      return showApi.showResponse(response, 'List Data Product Favorites', null, 404);
+      return showApi.showResponse(response, 'Data not found', null, null, 404);
     }
   } else {
     showApi.showResponse(response, 'Pagination was not valid.', null, validation.validationPagination(pagination), 400);
