@@ -4,7 +4,8 @@ const showApi = require('../helpers/showResponse');
 const validation = require('../helpers/validation');
 
 const {
-  APP_URL
+  APP_URL,
+  ENVIRONMENT
 } = process.env;
 
 const insertCategory = (req, res) => {
@@ -146,7 +147,9 @@ const updateCategory = (req, res) => {
               if (detailCategory) {
                 const result = await categoryModel.getDataCategory(id);
                 if (result[0].image) {
-                  result[0].image = `${APP_URL}/${result[0].image.replace('\\', '/')}`;
+                  if (ENVIRONMENT === 'development') {
+                    result[0].image = `${APP_URL}/${result[0].image.replace('\\', '/')}`;
+                  }
                 }
                 return showApi.showResponse(res, 'Data category updated successfully!', result[0]);
               } else {
