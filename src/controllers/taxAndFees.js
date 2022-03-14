@@ -1,6 +1,7 @@
 const taxModel = require('../models/taxAndFees');
 const showApi = require('../helpers/showResponse');
 const validation = require('../helpers/validation');
+const validator = require('validator');
 
 const insertTax = async (req, res) => {
   const data = {
@@ -121,20 +122,28 @@ const updateTax = async (request, response) => {
 const deleteTax = async (request, response) => {
   const { id } = request.params;
 
-  const getDataTax = await taxModel.getDataTax(id);
-  let success = false;
-  if (getDataTax.length > 0) {
-    success = true;
-    if (success) {
-      const resultDataTax = await taxModel.deleteDataTax(id);
-      if (resultDataTax.affectedRows > 0) {
-        showApi.showResponse(response, 'Data tax deleted success!', getDataTax[0]);
+  if (!validator.isEmpty(id)) {
+    if (validator.isNumeric(id)) {
+      const getDataTax = await taxModel.getDataTax(id);
+      let success = false;
+      if (getDataTax.length > 0) {
+        success = true;
+        if (success) {
+          const resultDataTax = await taxModel.deleteDataTax(id);
+          if (resultDataTax.affectedRows > 0) {
+            showApi.showResponse(response, 'Data tax deleted success!', getDataTax[0]);
+          } else {
+            showApi.showResponse(response, 'Data tax failed to delete!', null, 500);
+          }
+        }
       } else {
-        showApi.showResponse(response, 'Data tax failed to delete!', null, 500);
+        showApi.showResponse(response, 'Data tax not found!', null, 404);
       }
+    } else {
+      return showApi.showResponse(response, 'Id must be a number', null, null, 400);
     }
   } else {
-    showApi.showResponse(response, 'Data tax not found!', null, 404);
+    return showApi.showResponse(response, 'Id must be filled.', null, null, 400);
   }
 };
 
