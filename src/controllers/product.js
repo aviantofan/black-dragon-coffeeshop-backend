@@ -107,6 +107,8 @@ const getProducts = async (request, response) => {
     searchParam = `name=${name}`;
   }
 
+  console.log(filter);
+
   filledFilter.forEach((item) => {
     if (request.query[item]) {
       filter[item] = request.query[item];
@@ -295,8 +297,7 @@ const updatePatchProduct = (request, response) => {
         if (getDataProduct.length > 0) {
           const dataProduct = {};
 
-          const filled = ['name', 'price', 'description', 'stocks', 'delivery_time_start', 'delivery_time_end', 'category_id'
-          ];
+          const filled = ['name', 'price', 'description', 'stocks', 'delivery_time_start', 'delivery_time_end', 'category_id'];
           filled.forEach((value) => {
             if (request.body[value]) {
               if (request.file) {
