@@ -1,12 +1,14 @@
-const {
-  body,
-  validationResult
-} = require('express-validator');
+// const {
+//   body,
+//   validationResult
+// } = require('express-validator');
 const categoryModel = require('../models/category');
 const deliveryMethodModel = require('../models/deliveryMethod');
 const sizeModel = require('../models/size');
 const validator = require('validator');
 const productModel = require('../models/product');
+const promoModel = require('../models/promotion');
+const userModel = require('../models/userModel');
 
 exports.validationDataProducts = async (data) => {
   let result = null;
@@ -143,6 +145,11 @@ exports.validationDataPromotionDeliveryMethods = async (data) => {
     result = {
       promotion_id: 'Invalid input, promotion_id must be a number!'
     };
+  } else {
+    const dataPromo = await promoModel.getDataPromotion(data.promotion_id);
+    if (dataPromo.length === 0) {
+      result = { promotion_id: 'promotion id not found.' };
+    }
   }
   // if (!data.promotion_id) {
   //   result = {
@@ -160,6 +167,11 @@ exports.validationDataPromotionDeliveryMethods = async (data) => {
       ...result,
       delivery_method_id: 'Invalid input, delivery_method_id must be a number!'
     };
+  } else {
+    const dataDeliveryMethod = await deliveryMethodModel.getDataDeliveryMethod(data.delivery_method_id);
+    if (dataDeliveryMethod.length === 0) {
+      result = { ...result, delivery_method_id: 'delivery method id not found.' };
+    }
   }
 
   return result;
