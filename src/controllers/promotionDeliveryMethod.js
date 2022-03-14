@@ -90,7 +90,7 @@ const getPromotionDeliveryMethods = async (request, response) => {
   }
 };
 
-const getListPromotionByIdPromotion = async (request, response) => {
+const getListPromotionDeliveryMethodByIdPromotion = async (request, response) => {
   const { idPromotion } = request.params;
 
   if (!validator.isEmpty(idPromotion)) {
@@ -252,4 +252,4 @@ const deletePromotionDeliveryMethod2 = async (request, response) => {
   }
 };
 
-module.exports = { insertPromotionDeliveryMethod, getPromotionDeliveryMethods, getListPromotionByIdPromotion, getPromotionDeliveryMethod, updatePatchPromotionDeliveryMethod, updatePatchPromotionDeliveryMethod2, deletePromotionDeliveryMethod, deletePromotionDeliveryMethod2 };
+module.exports = { insertPromotionDeliveryMethod, getPromotionDeliveryMethods, getListPromotionDeliveryMethodByIdPromotion, getPromotionDeliveryMethod, updatePatchPromotionDeliveryMethod, updatePatchPromotionDeliveryMethod2, deletePromotionDeliveryMethod, deletePromotionDeliveryMethod2 };
