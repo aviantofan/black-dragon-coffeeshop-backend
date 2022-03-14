@@ -71,7 +71,7 @@ exports.updateDataUserProfile = (data, id) => new Promise((resolve, reject) => {
 // get user profile by id
 exports.getUserProfile = (id) => new Promise((resolve, reject) => {
     const query = `
-    SELECT au,up.display_name, up.first_name, up.last_name, up.gender, up.phone, up.address, up.image, up.birthdate,au.email, up.created_at
+    SELECT au.id,up.display_name, up.first_name, up.last_name, up.gender, up.phone, up.address, up.image, up.birthdate,au.email, up.created_at
     FROM user_profiles up
     LEFT JOIN auth_users au
     ON au.id = up.auth_user_id
