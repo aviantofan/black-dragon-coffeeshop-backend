@@ -132,7 +132,7 @@ exports.pageInfoCreator = (totalDataCount, url, values) => {
 
 exports.dataMapping = (data) => {
   data.map(el => {
-    if (el.image !== null) {
+    if (el.image) {
       const path = el.image.replace(/\\/g, '/');
       if (ENVIRONMENT !== 'production') {
         el.image = `${APP_URL}/${path}`;

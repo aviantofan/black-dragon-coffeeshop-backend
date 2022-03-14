@@ -57,6 +57,15 @@ exports.requestMapping = (data, rules) => {
           dump[k] = data[k];
         }
       }
+      if (rules[k].includes('gender')) {
+        const genderValue = ['male', 'female'];
+        const genderData = data[k].trim().toLowerCase();
+        if (genderValue.includes(genderData)) {
+          dump[k] = genderData;
+        } else {
+          dump[k] = null;
+        }
+      }
       if (rules[k].includes('boolean')) {
         data[k] = String(data[k]).trim().toLowerCase();
         if (data[k] === 'true' || data[k] === '1') {
@@ -107,6 +116,14 @@ exports.requestMapping = (data, rules) => {
       }
       if (rules[k].includes('datetime')) {
         if (validator.isISO8601(data[k])) {
+          dump[k] = data[k];
+        } else {
+          dump[k] = null;
+        }
+      }
+      if (rules[k].includes('time')) {
+        const regexPattern = /(?:[01]\d|2[0123]):(?:[012345]\d):(?:[012345]\d)$/;
+        if (regexPattern.test(data[k])) {
           dump[k] = data[k];
         } else {
           dump[k] = null;

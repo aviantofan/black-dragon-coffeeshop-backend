@@ -43,7 +43,8 @@ if (ENVIRONMENT === 'production') {
     },
     filename: (req, file, cb) => {
       const extension = file.originalname.split('.').pop();
-      const fileName = nanoid() + file.originalname + '.' + extension;
+      const originalName = file.originalname.split('.').shift();
+      const fileName = nanoid() + originalName + '.' + extension;
       cb(null, fileName);
     }
   });

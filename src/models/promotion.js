@@ -41,3 +41,24 @@ exports.getDataPromotion = (id) => new Promise((resolve, reject) => {
     resolve(res);
   });
 });
+
+exports.insertDataPromotion = (data) => new Promise((resolve, reject) => {
+  db.query('insert into promotions set ?', [data], (err, res) => {
+    if (err) reject(err);
+    resolve(res);
+  });
+});
+
+exports.updateDataPromotion = (data, id) => new Promise((resolve, reject) => {
+  db.query('update promotions set ? where id=?', [data, id], (err, res) => {
+    if (err) reject(err);
+    resolve(res);
+  });
+});
+
+exports.deleteDataPromotion = (id) => new Promise((resolve, reject) => {
+  db.query('delete from promotions where id=?', [id], (err, res) => {
+    if (err) reject(err);
+    resolve(res);
+  });
+});
