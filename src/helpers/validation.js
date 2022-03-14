@@ -667,7 +667,15 @@ exports.validationUser = async (data) => {
 
 exports.validationDataPromotion = (data) => {
   let result = null;
-  const { name, code, description, normal_price, discount_value, available_start_at, available_end_at } = data;
+  const {
+    name,
+    code,
+    description,
+    normal_price,
+    discount_value,
+    available_start_at,
+    available_end_at
+  } = data;
   if (validator.isEmpty(name)) {
     result = {
       name: 'Name must be filled.'
@@ -702,19 +710,34 @@ exports.validationDataPromotion = (data) => {
       discount: 'Discount value must be filled!'
     };
   } else if (!validator.isNumeric(data.discount_value)) {
-    result = { ...result, discount_value: 'Discount value must be a number!' };
+    result = {
+      ...result,
+      discount_value: 'Discount value must be a number!'
+    };
   }
 
   if (validator.isEmpty(available_start_at)) {
-    result = { ...result, available_start_at: 'Available start at must be filled!' };
+    result = {
+      ...result,
+      available_start_at: 'Available start at must be filled!'
+    };
   } else if (!validator.isDate(available_start_at)) {
-    result = { ...result, available_start_at: 'Available start at must be a date!' };
+    result = {
+      ...result,
+      available_start_at: 'Available start at must be a date!'
+    };
   }
 
   if (validator.isEmpty(available_end_at)) {
-    result = { ...result, available_end_at: 'Available end at must be filled!' };
+    result = {
+      ...result,
+      available_end_at: 'Available end at must be filled!'
+    };
   } else if (!validator.isDate(available_end_at)) {
-    result = { ...result, available_end_at: 'Available end at must be a date!' };
+    result = {
+      ...result,
+      available_end_at: 'Available end at must be a date!'
+    };
   }
   return result;
 };
@@ -785,3 +808,14 @@ exports.validationDataPromotion = (data) => {
 //     }
 
 // ];
+
+exports.noNullData = (data, rules) => {
+  for (const key in data) {
+    if (data[key] === null) {
+      const ruleName = rules[key].split('|').shift();
+      return `Your ${key} must be ${ruleName === key ? 'have a valid type' : ruleName}`;
+    }
+  }
+
+  return '';
+};
