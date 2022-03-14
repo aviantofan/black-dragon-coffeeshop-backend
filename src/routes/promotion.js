@@ -18,7 +18,7 @@ const {
 promotions.get('/', getPromotions)
 promotions.get('/:id', getPromotion)
 promotions.post('/', verifyUser, uploadMiddleware("image"), insertPromotion)
-promotions.put('/:id', verifyUser, uploadMiddleware("image"), updatePromotion)
+promotions.patch('/:id', verifyUser, uploadMiddleware("image"), updatePromotion)
 promotions.delete('/:id', verifyUser, uploadMiddleware("image"), deletePromotion)
 
 module.exports = promotions
