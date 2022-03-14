@@ -78,9 +78,9 @@ const getListDataPaymentMethod = async(request, response) => {
 
     const dataPaymentMethod = await paymentMethodModel.getDataListPaymentMethods(dataFilter)
     if (dataPaymentMethod.length > 0) {
-        const total = await paymentMethodModel.countDataPaymentMethods(dataPaymentMethod)
+        const total = await paymentMethodModel.countDataListPaymentMethods(dataFilter)
         const pageInfo = showApi.pageInfoCreator(total[0].total, 'paymentMethod', dataFilter);
-        return showApi.returningSuccess(response, 200, 'Data payment method retrieved successfully!', showApi.dataMapping(dataPaymentMethod), pageInfo)
+        return showApi.returningSuccess(response, 200, 'Data payment method retrieved successfully!', dataPaymentMethod, pageInfo)
     } else {
         return showApi.showResponse(response, "Data not found!", null, null, 400)
     }
