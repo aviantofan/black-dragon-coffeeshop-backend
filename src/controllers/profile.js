@@ -45,7 +45,7 @@ exports.updateUserProfile = async (req, res) => {
       display_name: 'string',
       first_name: 'string',
       last_name: 'string',
-      phone: 'string',
+      phone: 'phone',
       address: 'string',
       gender: 'gender',
       birthdate: 'date'

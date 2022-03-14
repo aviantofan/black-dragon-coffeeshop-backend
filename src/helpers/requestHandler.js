@@ -57,6 +57,15 @@ exports.requestMapping = (data, rules) => {
           dump[k] = data[k];
         }
       }
+      if (rules[k].includes('gender')) {
+        const genderValue = ['male', 'female'];
+        const genderData = data[k].trim().toLowerCase();
+        if (genderValue.includes(genderData)) {
+          dump[k] = genderData;
+        } else {
+          dump[k] = null;
+        }
+      }
       if (rules[k].includes('boolean')) {
         data[k] = String(data[k]).trim().toLowerCase();
         if (data[k] === 'true' || data[k] === '1') {
