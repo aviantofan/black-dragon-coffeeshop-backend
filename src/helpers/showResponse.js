@@ -10,10 +10,7 @@ const {
 exports.showResponse = (res, message, result, error = null, status = 200, deleteImage = false) => {
   // console.error(error);
   let success = true;
-  const data = {
-    success,
-    message
-  };
+
   if (status >= 400) {
     success = false;
 
@@ -22,6 +19,11 @@ exports.showResponse = (res, message, result, error = null, status = 200, delete
     }
     // data.error = error;
   }
+
+  const data = {
+    success,
+    message
+  };
 
   if (result) {
     data.result = result;
