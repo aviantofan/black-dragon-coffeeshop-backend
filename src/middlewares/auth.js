@@ -42,7 +42,7 @@ exports.verifyAdmin = (req, res, next) => {
       return returningError(res, 401, 'Unauthorized');
     }
 
-    if (verifyUser.role !== 'administrator') {
+    if (verifyUser.role !== 'admin') {
       return returningError(res, 403, 'Just admin can do this');
     }
 

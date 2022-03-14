@@ -149,7 +149,7 @@ const getProducts = async (request, response) => {
           total: total,
           route: route
         };
-        return showApi.showResponseWithPagination(response, 'List Data Product', dataProduct, pagination);
+        return showApi.showResponseWithPagination(response, 'List Data Product', showApi.dataMapping(dataProduct), pagination);
       } catch (err) {
         return showApi.showResponse(response, err.message, null, 500);
       }
@@ -188,7 +188,8 @@ const insertProduct = async (request, response) => {
       stocks: request.body.stocks,
       delivery_time_start: request.body.deliveryTimeStart,
       delivery_time_end: request.body.deliveryTimeEnd,
-      category_id: request.body.categoryId
+      category_id: request.body.categoryId,
+      price_product: request.body.priceProduct
     };
 
     let errValidation = await validation.validationDataProducts(data);
@@ -254,6 +255,7 @@ const updateProduct = (request, response) => {
             delivery_time_end: request.body.deliveryTimeEnd,
             category_id: request.body.categoryId
           };
+
           let errValidation = await validation.validationDataProducts(data);
 
           if (request.file) {
@@ -471,7 +473,7 @@ const getFavorites = async (request, response) => {
           total: total,
           route: route
         };
-        return showApi.showResponseWithPagination(response, 'List Data Product Favorites', dataFavorite, pagination);
+        return showApi.showResponseWithPagination(response, 'List Data Product Favorites', showApi.dataMapping(dataFavorite), pagination);
       } catch (err) {
         return showApi.showResponse(response, err.message, null, 500);
       }
