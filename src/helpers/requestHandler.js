@@ -57,6 +57,15 @@ exports.requestMapping = (data, rules) => {
           dump[k] = data[k];
         }
       }
+      if (rules[k].includes('gender')) {
+        const genderValue = ['male', 'female'];
+        const genderData = data[k].trim().toLowerCase();
+        if (genderValue.includes(genderData)) {
+          dump[k] = genderData;
+        } else {
+          dump[k] = null;
+        }
+      }
       if (rules[k].includes('boolean')) {
         data[k] = String(data[k]).trim().toLowerCase();
         if (data[k] === 'true' || data[k] === '1') {
@@ -68,17 +77,28 @@ exports.requestMapping = (data, rules) => {
         }
       }
       if (rules[k].includes('date')) {
-        const regexPattern = /^\d{4}-\d{2}-\d{2}$/;
-        if (regexPattern.test(data[k])) {
+        // const regexPattern = /^\d{4}-\d{2}-\d{2}$/;
+        // if (regexPattern.test(data[k])) {
+        //   dump[k] = data[k];
+        // } else {
+        //   dump[k] = null;
+        // }
+
+        if (validator.isDate(data[k])) {
           dump[k] = data[k];
         } else {
           dump[k] = null;
         }
       }
       if (rules[k].includes('phone')) {
-        const regexPattern = /\+?([ -]?\d+)+|\(\d+\)([ -]\d+)/g;
+        // const regexPattern = /\+?([ -]?\d+)+|\(\d+\)([ -]\d+)/g;
         if (data[k].length >= 10) {
-          if (regexPattern.test(data[k])) {
+          // if (regexPattern.test(data[k])) {
+          //     dump[k] = data[k];
+          // } else {
+          //     dump[k] = null;
+          // }
+          if (validator.isMobilePhone(data[k], 'id-ID')) {
             dump[k] = data[k];
           } else {
             dump[k] = null;

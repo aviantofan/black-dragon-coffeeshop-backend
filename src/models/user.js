@@ -9,14 +9,6 @@ exports.getDataUserByEmail = (email) => new Promise((resolve, reject) => {
   console.log(query.sql);
 });
 
-exports.getDataUserByEmail = (email) => new Promise((resolve, reject) => {
-  // const query = db.query('select * from auth_users where email=?', [email], (err, res) => {
-  db.query('select * from auth_users where email=?', [email], (err, res) => {
-    if (err) reject(err);
-    resolve(res);
-  });
-});
-
 exports.getDataUerByEmailUpdate = (email, id) => new Promise((resolve, reject) => {
   db.query('select * from auth_users where email=? and id!=?', [email, id], (err, res) => {
     if (err) reject(err);
@@ -71,7 +63,7 @@ exports.updateDataUserProfile = (data, id) => new Promise((resolve, reject) => {
 // get user profile by id
 exports.getUserProfile = (id) => new Promise((resolve, reject) => {
   const query = `
-    SELECT up.display_name, up.first_name, up.last_name, up.gender, up.phone, up.address, up.image, up.birthdate, up.created_at
+    SELECT au.id,up.display_name, up.first_name, up.last_name, up.gender, up.phone, up.address, up.image, up.birthdate,au.email, up.created_at
     FROM user_profiles up
     LEFT JOIN auth_users au
     ON au.id = up.auth_user_id
