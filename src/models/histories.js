@@ -30,12 +30,12 @@ exports.getDataHistoriesByFilter = (data) =>
 
     const query = db.query(
       `
-      select p.name,p.price
-      from histories h 
-      left join product_histories ph on ph.history_id = h.id 
-      join products p on p.id = ph.product_id
-      where p.name like '%${data.name}%' ${resultFillter} ${userId ? `and h.user_profile_id = ${userId}` : ''}
-      order by ${data.sort} ${data.order} LIMIT ${data.limit} OFFSET ${data.offset}
+      SELECT h.id, p.name,p.price, p.image, h.delivery_status as deliveryStatus
+      FROM histories h 
+      LEFT JOIN product_histories ph ON ph.history_id = h.id 
+      JOIN products p ON p.id = ph.product_id
+      WHERE p.name like '%${data.name}%' ${resultFillter} ${userId ? `AND h.user_profile_id = ${userId}` : ''}
+      ORDER by ${data.sort} ${data.order} LIMIT ${data.limit} OFFSET ${data.offset}
       `,
       (error, result) => {
         if (error) reject(error);

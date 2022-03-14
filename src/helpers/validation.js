@@ -727,3 +727,14 @@ exports.validationUser = async (data) => {
 //     }
 
 // ];
+
+exports.noNullData = (data, rules) => {
+  for (const key in data) {
+    if (data[key] === null) {
+      const ruleName = rules[key].split('|').shift();
+      return `Your ${key} must be ${ruleName === key ? 'have a valid type' : ruleName}`;
+    }
+  }
+
+  return '';
+};
