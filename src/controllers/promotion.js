@@ -4,6 +4,8 @@ const showApi = require('../helpers/showResponse');
 // const auth = require('../helpers/auth')
 const validation = require('../helpers/validation');
 const validator = require('validator');
+const { request } = require('express');
+const { response } = require('express');
 
 // const { APP_URL } = process.env
 
@@ -125,6 +127,43 @@ const getPromotions = async (request, response) => {
   }
 };
 
+const getListPromotions = async (request, response) => {
+  try {
+    const { name, discount_value, available_start_at, available_end_at, page, normal_price, limit, sort, order } = request.query;
+
+    if (!page) {
+      showApi.showResponse(response, 'Page must be filled!', null, null, 400);
+    }
+
+    if (!limit) {
+      showApi.showResponse(response, 'Limit must be filled!', null, null, 400);
+    }
+
+    const dataFilter = {
+      name: name || null,
+      discount_value: discount_value || null,
+      available_start_at: available_start_at || null,
+      available_end_at: available_end_at || null,
+      normal_price: normal_price || null,
+      page,
+      limit,
+      sort: sort || null,
+      order: order || 'asc'
+    };
+
+    const resultDataPromo = await promotionModel.getListDataPromotions(dataFilter);
+    if (resultDataPromo.length > 0) {
+      const total = await promotionModel.countListPromotions(dataFilter);
+      const pageInfo = showApi.pageInfoCreator(total[0].total, 'promotions', dataFilter);
+      return showApi.returningSuccess(response, 200, 'Data promotions retrieved successfully!', showApi.dataMapping(resultDataPromo), pageInfo);
+    } else {
+      return showApi.showResponse(response, 'Data not found!', null, null, 400);
+    }
+  } catch (err) {
+    return showApi.showResponse(response, err.message, null, null, 500);
+  }
+};
+
 const getPromotion = async (request, response) => {
   const { id } = request.params;
 
@@ -139,50 +178,24 @@ const getPromotion = async (request, response) => {
 const insertPromotion = async (request, response) => {
   try {
     const { name, code, description, normal_price, discount_value, available_start_at, available_end_at } = request.body;
-    console.log(request.body);
-    if (validator.isEmpty(name)) {
-      return showApi.showResponse(response, 'Name must be filled!', null, null, 400);
-    }
-    if (validator.isEmpty(code)) {
-      return showApi.showResponse(response, 'Code must be filled!', null, null, 400);
-    }
-    if (validator.isEmpty(description)) {
-      return showApi.showResponse(response, 'Description must be filled!', null, null, 400);
-    }
-    if (validator.isEmpty(normal_price)) {
-      return showApi.showResponse(response, 'Normal price must be filled!', null, null, 400);
-    } else if (!validator.isNumeric(normal_price)) {
-      return showApi.showResponse(response, 'Normal price must be a number!', null, null, 400);
-    }
-
-    if (validator.isEmpty(discount_value)) {
-      return showApi.showResponse(response, 'Discount value must be filled!', null, null, 400);
-    } else if (!validator.isNumeric(discount_value)) {
-      return showApi.showResponse(response, 'Discount value must be a number!', null, null, 400);
-    }
-
-    if (validator.isEmpty(available_start_at)) {
-      return showApi.showResponse(response, 'Available start at must be filled!', null, null, 400);
-    } else if (!validator.isDate(available_start_at)) {
-      return showApi.showResponse(response, 'Available start at must be a date!', null, null, 400);
-    }
-
-    if (validator.isEmpty(available_end_at)) {
-      return showApi.showResponse(response, 'Available end at must be filled!', null, null, 400);
-    } else if (!validator.isDate(available_end_at)) {
-      return showApi.showResponse(response, 'Available end at must be a date!', null, null, 400);
-    }
-
     const data = { name, code, description, normal_price, discount_value, available_start_at, available_end_at };
+    console.log(data);
     if (request.file) {
       data.image = request.file.path;
     }
 
-    const result = await promotionModel.insertDataPromotion(data);
-    if (result.affectedRows > 0) {
-      return showApi.showResponse(response, 'Data Promotion created successfully!');
+    const errValidation = validation.validationDataPromotion(data);
+
+    if (errValidation === null) {
+      const insert = await promotionModel.insertDataPromotion(data);
+      if (insert.affectedRows > 0) {
+        const result = await promotionModel.getDataPromotion(insert.insertId);
+        return showApi.showResponse(response, 'Data Promotion created successfully!', showApi.dataMapping(result)[0]);
+      } else {
+        return showApi.showResponse(response, 'Data Promotion failed to create !', null, null, 400);
+      }
     } else {
-      return showApi.showResponse(response, 'Data Promotion failed to create !');
+      return showApi.showResponse(response, 'Data Promotion not valid !', null, errValidation, 400);
     }
   } catch (error) {
     return showApi.showResponse(response, error.message, null, null, 500);
@@ -211,7 +224,8 @@ const updatePromotion = async (request, response) => {
 
           const result = await promotionModel.updateDataPromotion(data, id);
           if (result.affectedRows > 0) {
-            return showApi.showResponse(response, 'Data Promotion updated successfully!');
+            const result = await promotionModel.getDataPromotion(id);
+            return showApi.showResponse(response, 'Data Promotion updated successfully!', showApi.dataMapping(result)[0]);
           } else {
             return showApi.showResponse(response, 'Data Promotion failed to update !', null, null, 400);
           }
@@ -257,168 +271,4 @@ const deletePromotion = async (request, response) => {
   }
 };
 
-module.exports = { getPromotions, getPromotion, insertPromotion, updatePromotion, deletePromotion };
-//   } else {
-//     showApi.showResponse(response, 'Pagination was not valid.', null, validation.validationPagination(pagination), 400);
-//   }
-// };
-
-// const getPromotion = async (request, response) => {
-//   const {
-//     id
-//   } = request.params;
-
-//   const result = await promotionModel.getDataPromotion(id);
-//   if (result.length > 0) {
-//     return showApi.showResponse(response, 'Detail Promotion', result[0]);
-//   } else {
-//     return showApi.showResponse(response, 'Detail Promotion not found!', null, 404);
-//   }
-// };
-
-// const insertPromotion = async (request, response) => {
-//   try {
-//     const {
-//       name,
-//       code,
-//       description,
-//       normal_price,
-//       discount_value,
-//       available_start_at,
-//       available_end_at
-//     } = request.body;
-//     console.log(request.body);
-//     if (validator.isEmpty(name)) {
-//       return showApi.showResponse(response, 'Name must be filled!', null, null, 400);
-//     }
-//     if (validator.isEmpty(code)) {
-//       return showApi.showResponse(response, 'Code must be filled!', null, null, 400);
-//     }
-//     if (validator.isEmpty(description)) {
-//       return showApi.showResponse(response, 'Description must be filled!', null, null, 400);
-//     }
-//     if (validator.isEmpty(normal_price)) {
-//       return showApi.showResponse(response, 'Normal price must be filled!', null, null, 400);
-//     } else if (!validator.isNumeric(normal_price)) {
-//       return showApi.showResponse(response, 'Normal price must be a number!', null, null, 400);
-//     }
-
-//     if (validator.isEmpty(discount_value)) {
-//       return showApi.showResponse(response, 'Discount value must be filled!', null, null, 400);
-//     } else if (!validator.isNumeric(discount_value)) {
-//       return showApi.showResponse(response, 'Discount value must be a number!', null, null, 400);
-//     }
-
-//     if (validator.isEmpty(available_start_at)) {
-//       return showApi.showResponse(response, 'Available start at must be filled!', null, null, 400);
-//     } else if (!validator.isDate(available_start_at)) {
-//       return showApi.showResponse(response, 'Available start at must be a date!', null, null, 400);
-//     }
-
-//     if (validator.isEmpty(available_end_at)) {
-//       return showApi.showResponse(response, 'Available end at must be filled!', null, null, 400);
-//     } else if (!validator.isDate(available_end_at)) {
-//       return showApi.showResponse(response, 'Available end at must be a date!', null, null, 400);
-//     }
-
-//     const data = {
-//       name,
-//       code,
-//       description,
-//       normal_price,
-//       discount_value,
-//       available_start_at,
-//       available_end_at
-//     };
-//     if (request.file) {
-//       data.image = request.file.path;
-//     }
-
-//     const result = await promotionModel.insertDataPromotion(data);
-//     if (result.affectedRows > 0) {
-//       return showApi.showResponse(response, 'Data Promotion created successfully!');
-//     } else {
-//       return showApi.showResponse(response, 'Data Promotion failed to create !');
-//     }
-//   } catch (error) {
-//     return showApi.showResponse(response, error.message, null, null, 500);
-//   }
-// };
-
-// const updatePromotion = async (request, response) => {
-//   try {
-//     const {
-//       id
-//     } = request.params;
-
-//     if (!validator.isEmpty(id)) {
-//       if (validator.isNumeric(id)) {
-//         const getDataPromotion = await promotionModel.getDataPromotion(id);
-//         if (getDataPromotion.length > 0) {
-//           const filled = ['name', 'code', 'description', 'normal_price', 'discount_value', 'available_start_at', 'available_end_at'];
-//           const error = null;
-//           const data = {};
-
-//           filled.forEach((value) => {
-//             if (request.body[value]) {
-//               data[value] = request.body[value];
-//             }
-//           });
-
-//           const result = await promotionModel.updateDataPromotion(data, id);
-//           if (result.affectedRows > 0) {
-//             return showApi.showResponse(response, 'Data Promotion updated successfully!');
-//           } else {
-//             return showApi.showResponse(response, 'Data Promotion failed to update !', null, null, 400);
-//           }
-//         } else {
-//           return showApi.showResponse(response, 'Data not found!');
-//         }
-//       } else {
-//         return showApi.showResponse(response, 'Id must be a number!');
-//       }
-//     } else {
-//       return showApi.showResponse(response, 'Id must be filled!');
-//     }
-//   } catch (error) {
-//     return showApi.showResponse(response, error.message, null, null, 500);
-//   }
-// };
-
-// const deletePromotion = async (request, response) => {
-//   try {
-//     const {
-//       id
-//     } = request.params;
-
-//     if (!validator.isEmpty(id)) {
-//       if (validator.isNumeric(id)) {
-//         const getDataPromotion = await promotionModel.getDataPromotion(id);
-//         if (getDataPromotion.length > 0) {
-//           const result = await promotionModel.deleteDataPromotion(id);
-//           if (result.affectedRows > 0) {
-//             return showApi.showResponse(response, 'Data Promotion deleted successfully!');
-//           } else {
-//             return showApi.showResponse(response, 'Data Promotion failed to delete !');
-//           }
-//         } else {
-//           return showApi.showResponse(response, 'Data not found!');
-//         }
-//       } else {
-//         return showApi.showResponse(response, 'Id must be a number!');
-//       }
-//     } else {
-//       return showApi.showResponse(response, 'Id must be filled!');
-//     }
-//   } catch (error) {
-//     return showApi.showResponse(response, error.message, null, null, 500);
-//   }
-// };
-
-// module.exports = {
-//   getPromotions,
-//   getPromotion,
-//   insertPromotion,
-//   updatePromotion,
-//   deletePromotion
-// };
+module.exports = { getListPromotions, getPromotion, insertPromotion, updatePromotion, deletePromotion };

@@ -16,7 +16,7 @@ exports.getDataPromotionDeliveryMethods = (data) => new Promise((resolve, reject
     }
   });
 
-  const query = db.query(`SELECT pr.name AS promotion, dm.name AS deliveryMethod
+  const query = db.query(`SELECT pdm.id AS id, pr.name AS promotion, dm.name AS deliveryMethod
     FROM promotion_delivery_methods pdm JOIN promotions pr ON pr.id = pdm.promotion_id 
     JOIN delivery_methods dm ON dm.id = pdm.delivery_method_id 
     where pr.name like '%${data.name}%' ${resultFillter}

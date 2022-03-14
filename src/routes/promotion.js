@@ -8,14 +8,16 @@ const {
 } = require('../middlewares/upload');
 
 const {
-  getPromotions,
+  getListPromotions,
+  // getPromotions,
   getPromotion,
   insertPromotion,
   updatePromotion,
   deletePromotion
 } = require('../controllers/promotion');
 
-promotions.get('/', getPromotions);
+promotions.get('/', getListPromotions);
+// promotions.get('/', getPromotions);
 promotions.get('/:id', getPromotion);
 promotions.post('/', verifyUser, uploadMiddleware('image'), insertPromotion);
 promotions.patch('/:id', verifyUser, uploadMiddleware('image'), updatePromotion);
