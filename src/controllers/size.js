@@ -33,8 +33,8 @@ const insertSize = async (req, res) => {
 const getSizes = async (req, res) => {
   let { name, page, limit } = req.query;
   name = name || '';
-  page = ((page != null && page != '') ? parseInt(page) : 1);
-  limit = ((limit != null && limit != '') ? parseInt(limit) : 5);
+  page = ((page !== null && page !== '') ? parseInt(page) : 1);
+  limit = ((limit !== null && limit !== '') ? parseInt(limit) : 5);
   let pagination = { page, limit };
   let route = 'sizes?';
   let searchParam = '';
