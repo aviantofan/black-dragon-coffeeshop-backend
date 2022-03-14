@@ -70,10 +70,11 @@ exports.getDataProduct = (id) => new Promise((resolve, reject) => {
 });
 
 exports.insertDataProduct = (data) => new Promise((resolve, reject) => {
-  db.query('insert into products set ?', [data], (err, res) => {
+  const ss = db.query('insert into products set ?', [data], (err, res) => {
     if (err) reject(err);
     resolve(res);
   });
+  console.log(ss.sql);
 });
 
 exports.updateDataProduct = (data, id) => new Promise((resolve, reject) => {

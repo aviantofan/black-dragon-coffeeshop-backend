@@ -67,6 +67,8 @@ exports.validationDataProducts = async (data) => {
     };
   }
 
+  console.log(data.price);
+
   if (data.price == null || data.price == '') {
     result = {
       ...result,
