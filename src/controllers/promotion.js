@@ -129,7 +129,7 @@ const getPromotions = async(request, response) => {
 
 const getListPromotions = async(request, response) => {
     try {
-        const { name, discount_value, available_start_at, available_end_at, page, normal_price, limit, sort, order } = request.query;
+        const { name, discount_value, date, page, normal_price, limit, sort, order } = request.query;
 
         if (!page) {
             showApi.showResponse(response, 'Page must be filled!', null, null, 400);
@@ -142,8 +142,7 @@ const getListPromotions = async(request, response) => {
         const dataFilter = {
             name: name || null,
             discount_value: discount_value || null,
-            available_start_at: available_start_at || null,
-            available_end_at: available_end_at || null,
+            date: date || null,
             normal_price: normal_price || null,
             page,
             limit,
@@ -169,7 +168,7 @@ const getPromotion = async(request, response) => {
 
     const result = await promotionModel.getDataPromotion(id);
     if (result.length > 0) {
-        return showApi.showResponse(response, 'Detail Promotion', result[0]);
+        return showApi.showResponse(response, 'Detail Promotion', showApi.dataMapping(result)[0]);
     } else {
         return showApi.showResponse(response, 'Detail Promotion not found!', null, 404);
     }
