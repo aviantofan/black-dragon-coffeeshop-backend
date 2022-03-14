@@ -1,7 +1,4 @@
 const db = require('../helpers/database');
-const {
-  APP_URL
-} = process.env;
 
 // exports.getDataProducts = (data) => new Promise((resolve, reject) => {
 //   const filled = ['price', 'stocks', 'time', 'category_id'];
@@ -30,7 +27,7 @@ exports.getDataProducts = (data) => new Promise((resolve, reject) => {
     }
   });
 
-  const query = db.query(`select p.name,p.price,concat('${APP_URL}/',image) as image,p.category_id
+  const query = db.query(`select p.name,p.price,p.image as image,p.category_id
     from products p join categories c on c.id = p.category_id
     where p.name like '%${data.name}%' ${resultFillter}
     order by ${data.sort} ${data.order} LIMIT ${data.limit} OFFSET ${data.offset}
