@@ -100,7 +100,7 @@ const updateTax = async (request, response) => {
           }
           if (success) {
             const result = await taxModel.getDataTax(id);
-            showApi.showResponse(response, 'Data tax update success!', result);
+            showApi.showResponse(response, 'Data tax update success!', result[0]);
           } else {
             showApi.showResponse(response, 'Data tax to update!', 500);
           }
@@ -128,8 +128,7 @@ const deleteTax = async (request, response) => {
     if (success) {
       const resultDataTax = await taxModel.deleteDataTax(id);
       if (resultDataTax.affectedRows > 0) {
-        const result = await taxModel.getDataTax(id);
-        showApi.showResponse(response, 'Data tax deleted success!', result[0]);
+        showApi.showResponse(response, 'Data tax deleted success!', getDataTax[0]);
       } else {
         showApi.showResponse(response, 'Data tax failed to delete!', null, 500);
       }

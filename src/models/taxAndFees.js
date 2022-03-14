@@ -8,7 +8,7 @@ exports.insertDataTax = (data) => new Promise((resolve, reject) => {
 });
 
 exports.getDataTaxes = (data) => new Promise((resolve, reject) => {
-  db.query(`SELECT * FROM taxes_and_fees WHERE name like '%${data.name}%' LIMIT ${data.limit} OFFSET ${data.offset}`, (err, res) => {
+  db.query(`SELECT id, name, value FROM taxes_and_fees WHERE name like '%${data.name}%' LIMIT ${data.limit} OFFSET ${data.offset}`, (err, res) => {
     if (err) reject(err);
     resolve(res);
   });
