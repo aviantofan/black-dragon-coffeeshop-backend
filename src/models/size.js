@@ -19,7 +19,7 @@ exports.getDataSizes = () => new Promise((resolve, reject) => {
 });
 
 exports.countDataSizes = (data) => new Promise((resolve, reject) => {
-  db.query(`SELECT COUNT(*) AS total FROM sizes where name like '%${data.name}%' LIMIT ${data.limit} `, (error, result) => {
+  db.query(`SELECT COUNT(*) AS total FROM sizes WHERE name like '%${data.name}%' LIMIT ${data.limit}`, (error, result) => {
     if (error) reject(error);
     resolve(result);
   });
