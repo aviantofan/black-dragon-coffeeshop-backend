@@ -17,11 +17,18 @@ exports.getDataUserByEmail = (email) => new Promise((resolve, reject) => {
     });
 });
 
-exports.getDataUerByEmailUpdate = (email, id) => new Promise((resolve, reject) => {
-    db.query('select * from auth_users where email=? and id!=?', [email, id], (err, res) => {
-        if (err) reject(err);
-        resolve(res);
-    });
+// <<<<<<< module-profile
+// exports.getDataUerByEmailUpdate = (email, id) => new Promise((resolve, reject) => {
+//     db.query('select * from auth_users where email=? and id!=?', [email, id], (err, res) => {
+//         if (err) reject(err);
+//         resolve(res);
+//     });
+// =======
+exports.getDataUserByEmailUpdate = (email, id) => new Promise((resolve, reject) => {
+  db.query('select * from auth_users where email=? and id!=?', [email, id], (err, res) => {
+    if (err) reject(err);
+    resolve(res);
+  });
 });
 
 // exports.insertDataUser = (data) => new Promise((resolve, reject) => {

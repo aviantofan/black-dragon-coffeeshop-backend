@@ -1,56 +1,38 @@
 const categoryModel = require('../models/category');
-const upload = require('../helpers/upload').single('image');
 const showApi = require('../helpers/showResponse');
 const validation = require('../helpers/validation');
 
-const {
-  APP_URL,
-  ENVIRONMENT
-} = process.env;
+const insertCategory = async (req, res) => {
+  const data = {
+    name: req.body.name
+  };
+  const errValidation = await validation.validationDataCategory(data);
 
-const insertCategory = (req, res) => {
-  upload(req, res, async (errorUpload) => {
+  if (errValidation === null) {
     const data = {
       name: req.body.name
     };
-    let errValidation = await validation.validationDataCategory(data);
 
-    if (req.file) {
-      data.image = req.file.path;
-    }
-    if (errorUpload) {
-      errValidation = {
-        ...errValidation,
-        image: errorUpload.message
-      };
+    const dataCategory = await categoryModel.getDataCategoryByName(data.name);
+
+    if (dataCategory.length > 0) {
+      return showApi.showResponse(res, 'Category already registered', null, null, 400);
     }
 
-    if (errValidation === null) {
-      const dataCategory = {
-        name: req.body.name
-      };
-
-      const registeredName = await categoryModel.getDataCategoryByName(dataCategory.name);
-
-      if (registeredName.length > 0) {
-        return showApi.showResponse(res, 'Category already registered', null, null, 400);
-      }
-
-      const resultDataCategory = await categoryModel.insertDataCategory(dataCategory);
-      let success = false;
-      if (resultDataCategory.affectedRows > 0) {
-        success = true;
-      }
-      if (success) {
-        const result = await categoryModel.getDataCategory(resultDataCategory.insertId);
-        showApi.showResponse(res, 'Data category created successfully!', result[0]);
-      } else {
-        showApi.showResponse(res, 'Data category failed to create!', null, null, 500);
-      }
+    const resultDataCategory = await categoryModel.insertDataCategory(data);
+    let success = false;
+    if (resultDataCategory.affectedRows > 0) {
+      success = true;
+    }
+    if (success) {
+      const result = await categoryModel.getDataCategory(resultDataCategory.insertId);
+      showApi.showResponse(res, 'Data category created successfully!', result[0]);
     } else {
-      showApi.showResponse(res, 'Data category not valid', null, errValidation, 400);
+      showApi.showResponse(res, 'Data category failed to create!', null, null, 500);
     }
-  });
+  } else {
+    showApi.showResponse(res, 'Data category not valid', null, errValidation, 400);
+  }
 };
 
 const getCategories = async (req, res) => {
@@ -119,62 +101,44 @@ const getCategory = async (req, res) => {
   }
 };
 
-const updateCategory = (req, res) => {
-  upload(req, res, async (errorUpload) => {
-    const {
-      id
-    } = req.params;
-    if (id) {
-      if (!isNaN(id)) {
-        const dataCategory = await categoryModel.getDataCategory(id);
-        if (dataCategory.length > 0) {
-          const dataCategory = {};
-          const filled = ['name'];
-          filled.forEach((value) => {
-            if (req.body[value]) {
-              if (req.file) {
-                const photoTemp = req.file.path;
-                dataCategory.image = photoTemp.replace('\\', '/');
-              }
-              dataCategory[value] = req.body[value];
-            }
-          });
-          try {
-            const update = await categoryModel.updateDataCategory(dataCategory, id);
-            let detailCategory = false;
-            if (update.affectedRows > 0) {
-              detailCategory = true;
-              if (detailCategory) {
-                const result = await categoryModel.getDataCategory(id);
-                if (result[0].image) {
-                  if (ENVIRONMENT === 'development') {
-                    result[0].image = `${APP_URL}/${result[0].image.replace('\\', '/')}`;
-                  }
-                }
-                return showApi.showResponse(res, 'Data category updated successfully!', result[0]);
-              } else {
-                const result = await categoryModel.getDataCategory(id);
-                if (result[0].image) {
-                  result[0].image = `${APP_URL}/${result[0].image.replace('\\', '/')}`;
-                }
-                return showApi.showResponse(res, 'Data category updated successfully!', result[0]);
-              }
-            } else {
-              return showApi.showResponse(res, 'Data category failed to update', null, null, 500);
-            }
-          } catch (err) {
-            return showApi.showResponse(res, err.message, null, null, 500);
+const updateCategory = async (request, response) => {
+  const { id } = request.params;
+
+  if (id) {
+    if (!isNaN(id)) {
+      const dataSize = await categoryModel.getDataCategory(id);
+      if (dataSize.length > 0) {
+        const data = {
+          name: request.body.name
+        };
+        console.log(data);
+        const errValidation = await validation.validationDataCategory(data);
+
+        if (errValidation === null) {
+          const resultDataSize = await categoryModel.updateDataCategory(data, id);
+
+          let success = false;
+          if (resultDataSize.affectedRows > 0) {
+            success = true;
+          }
+          if (success) {
+            const result = await categoryModel.getDataCategory(id);
+            showApi.showResponse(response, 'Data category update success!', result);
+          } else {
+            showApi.showResponse(response, 'Data category to update!', 500);
           }
         } else {
-          return showApi.showResponse(res, 'Data category not found', null, null, 400);
+          showApi.showResponse(response, 'Data category not valid', null, errValidation, 400);
         }
       } else {
-        return showApi.showResponse(res, 'Id must be a number', null, null, 400);
+        return showApi.showResponse(response, 'Data category not found', null, null, 400);
       }
     } else {
-      return showApi.showResponse(res, 'Id must be filled.', null, null, 400);
+      return showApi.showResponse(response, 'Id must be a number', null, null, 400);
     }
-  });
+  } else {
+    return showApi.showResponse(response, 'Id must be filled.', null, null, 400);
+  }
 };
 
 const deleteCategory = async (request, response) => {

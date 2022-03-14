@@ -10,7 +10,7 @@ const insertPromotionDeliveryMethod = async (request, response) => {
 
   const errValidation = await validation.validationDataPromotionDeliveryMethods(data);
 
-  if (errValidation == null) {
+  if (errValidation === null) {
     const dataPromotionDeliveryMethod = {
       promotion_id: parseInt(request.body.promotion_id),
       delivery_method_id: parseInt(request.body.delivery_method_id)
@@ -38,8 +38,8 @@ const getPromotionDeliveryMethods = async (request, response) => {
   sort = sort || 'pdm.created_at';
   const filledFilter = ['delivery_method_id'];
   const filter = {};
-  page = ((page != null && page !== '') ? parseInt(page) : 1);
-  limit = ((limit != null && limit !== '') ? parseInt(limit) : 5);
+  page = ((page !== null && page !== '') ? parseInt(page) : 1);
+  limit = ((limit !== null && limit !== '') ? parseInt(limit) : 5);
   order = order || 'desc';
   let pagination = { page, limit };
   let route = 'promotionDeliveryMethods?';
@@ -61,7 +61,7 @@ const getPromotionDeliveryMethods = async (request, response) => {
   route += searchParam;
 
   const errValidation = await validation.validationPagination(pagination);
-  if (errValidation == null) {
+  if (errValidation === null) {
     const offset = (page - 1) * limit;
     console.log(offset);
     const data = { name, filter, limit, offset, sort, order };
@@ -106,11 +106,12 @@ const updatePatchPromotionDeliveryMethod = async (request, response) => {
           promotion_id: parseInt(request.body.promotion_id),
           delivery_method_id: parseInt(request.body.delivery_method_id)
         };
+        console.log(data);
 
         const errValidation = await validation.validationDataPromotionDeliveryMethods(data);
 
-        if (errValidation == null) {
-          const resultDataPromotionDeliveryMethod = await promotionDeliveryMethodModel.updateDataPromotionDeliveryMethod(dataPromotionDeliveryMethod, id);
+        if (errValidation === null) {
+          const resultDataPromotionDeliveryMethod = await promotionDeliveryMethodModel.updateDataPromotionDeliveryMethod(data, id);
           let success = false;
           if (resultDataPromotionDeliveryMethod.affectedRows > 0) {
             success = true;
@@ -136,28 +137,24 @@ const updatePatchPromotionDeliveryMethod = async (request, response) => {
 };
 
 const deletePromotionDeliveryMethod = async (request, response) => {
-  // auth.verifyUser(request, response, async(error) => {
-  const { id } = request.params;
+  const {
+    id
+  } = request.params;
 
   const getDataPromotionDeliveryMethod = await promotionDeliveryMethodModel.getDataPromotionDeliveryMethod(id);
+  let success = false;
   if (getDataPromotionDeliveryMethod.length > 0) {
-    let success = false;
-
-    const resultDataPromotionDeliveryMethodDeliveryMethod = await promotionDeliveryMethodModel.deleteDataPromotionDeliveryMethodDeliveryMethod(id);
-    if (resultDataPromotionDeliveryMethodDeliveryMethod.affectedRows > 0) {
-      success = true;
-    }
+    success = true;
     if (success) {
       const resultDataPromotionDeliveryMethod = await promotionDeliveryMethodModel.deleteDataPromotionDeliveryMethod(id);
       if (resultDataPromotionDeliveryMethod.affectedRows > 0) {
-        const result = await promotionDeliveryMethodModel.getDataPromotionDeliveryMethod(id);
-        showApi.showResponse(response, 'Data promotion delivery method deleted successfully!', result);
+        showApi.showResponse(response, 'Data category deleted successfully!', getDataPromotionDeliveryMethod[0]);
       } else {
-        showApi.showResponse(response, 'Data promotion delivery method failed to delete!', null, 500);
+        showApi.showResponse(response, 'Data category failed to delete!', null, 500);
       }
     }
   } else {
-    showApi.showResponse(response, 'Data promotion delivery method not found!', null, 404);
+    showApi.showResponse(response, 'Data category not found!', null, 404);
   }
 };
 
