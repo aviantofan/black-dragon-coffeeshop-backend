@@ -29,7 +29,7 @@ exports.deleteDataDeliveryMethod = (id) => new Promise((resolve, reject) => {
 });
 
 exports.getDataDeliveryMethods = (data) => new Promise((resolve, reject) => {
-  const query = db.query(`SELECT * FROM delivery_methods WHERE name like '%${data.name}%' LIMIT ${data.limit} OFFSET ${data.offset}`, (error, result) => {
+  const query = db.query(`SELECT id, name FROM delivery_methods WHERE name like '%${data.name}%' LIMIT ${data.limit} OFFSET ${data.offset}`, (error, result) => {
     if (error) reject(error);
     resolve(result);
   });
