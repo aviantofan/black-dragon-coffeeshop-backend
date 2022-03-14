@@ -31,11 +31,18 @@ const insertSize = async (req, res) => {
 };
 
 const getSizes = async (req, res) => {
-  let { name, page, limit } = req.query;
+  let {
+    name,
+    page,
+    limit
+  } = req.query;
   name = name || '';
   page = ((page !== null && page !== '') ? parseInt(page) : 1);
   limit = ((limit !== null && limit !== '') ? parseInt(limit) : 5);
-  let pagination = { page, limit };
+  let pagination = {
+    page,
+    limit
+  };
   let route = 'sizes?';
   let searchParam = '';
   if (name) {
@@ -46,16 +53,26 @@ const getSizes = async (req, res) => {
   const errValidation = await validation.validationPagination(pagination);
   if (errValidation === null) {
     const offset = (page - 1) * limit;
-    console.log(offset);
-    const data = { name, page, limit, offset };
+    const data = {
+      name,
+      page,
+      limit,
+      offset
+    };
     const dataSize = await sizeModel.getDataSizes(data);
 
     if (dataSize.length > 0) {
       const result = await sizeModel.countDataSizes(data);
       try {
-        const { total } = result[0];
-        pagination = { ...pagination, total: total, route: route };
-        return showApi.showResponseWithPagination(res, 'List Data size', dataSize, pagination);
+        const {
+          total
+        } = result[0];
+        pagination = {
+          ...pagination,
+          total: total,
+          route: route
+        };
+        return showApi.showResponseWithPagination(res, 'List Data Size', dataSize, pagination);
       } catch (err) {
         return showApi.showResponse(res, err.message, null, 500);
       }
@@ -128,8 +145,7 @@ const deleteSize = async (request, response) => {
     if (success) {
       const resultDataSize = await sizeModel.deleteDataSize(id);
       if (resultDataSize.affectedRows > 0) {
-        const result = await sizeModel.getDataSize(id);
-        showApi.showResponse(response, 'Data size deleted successfully!', result);
+        showApi.showResponse(response, 'Data size deleted successfully!', getDataSize[0]);
       } else {
         showApi.showResponse(response, 'Data size failed to delete!', null, 500);
       }
