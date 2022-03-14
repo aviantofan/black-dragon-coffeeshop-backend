@@ -77,28 +77,17 @@ exports.requestMapping = (data, rules) => {
         }
       }
       if (rules[k].includes('date')) {
-        // const regexPattern = /^\d{4}-\d{2}-\d{2}$/;
-        // if (regexPattern.test(data[k])) {
-        //   dump[k] = data[k];
-        // } else {
-        //   dump[k] = null;
-        // }
-
-        if (validator.isDate(data[k])) {
+        const regexPattern = /^\d{4}-\d{2}-\d{2}$/;
+        if (regexPattern.test(data[k])) {
           dump[k] = data[k];
         } else {
           dump[k] = null;
         }
       }
       if (rules[k].includes('phone')) {
-        // const regexPattern = /\+?([ -]?\d+)+|\(\d+\)([ -]\d+)/g;
+        const regexPattern = /\+?([ -]?\d+)+|\(\d+\)([ -]\d+)/g;
         if (data[k].length >= 10) {
-          // if (regexPattern.test(data[k])) {
-          //     dump[k] = data[k];
-          // } else {
-          //     dump[k] = null;
-          // }
-          if (validator.isMobilePhone(data[k], 'id-ID')) {
+          if (regexPattern.test(data[k])) {
             dump[k] = data[k];
           } else {
             dump[k] = null;
