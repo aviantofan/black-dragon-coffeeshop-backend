@@ -1,6 +1,8 @@
+
 const promotionDeliveryMethods = require('express').Router();
 
 const {
+module-promotion-delivery-method
     insertPromotionDeliveryMethod,
     getPromotionDeliveryMethods,
     getListPromotionByIdPromotion,

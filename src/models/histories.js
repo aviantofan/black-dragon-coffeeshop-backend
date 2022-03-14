@@ -30,7 +30,7 @@ exports.getDataHistoriesByFilter = (data) =>
 
     const query = db.query(
       `
-      SELECT h.id, p.name,p.price, p.image, h.delivery_status as deliveryStatus
+      SELECT DISTINCT h.id, p.name,p.price, p.image, h.delivery_status as deliveryStatus
       FROM histories h 
       LEFT JOIN product_histories ph ON ph.history_id = h.id 
       JOIN products p ON p.id = ph.product_id
