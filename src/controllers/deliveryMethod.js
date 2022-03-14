@@ -128,8 +128,7 @@ const deleteDataDeliveryMethod = async (request, response) => {
     if (success) {
       const resultDataDeliveryMethod = await deliveryMethodModel.deleteDataDeliveryMethod(id);
       if (resultDataDeliveryMethod.affectedRows > 0) {
-        const result = await deliveryMethodModel.getDataDeliveryMethod(id);
-        showApi.showResponse(response, 'Data delivery method deleted successfully!', result[0]);
+        showApi.showResponse(response, 'Data delivery method deleted successfully!', getDataDeliveryMethod[0]);
       } else {
         showApi.showResponse(response, 'Data delivery method failed to delete!', null, 500);
       }
