@@ -109,6 +109,8 @@ const getProducts = async (request, response) => {
     searchParam = `name=${name}`;
   }
 
+  console.log(filter);
+
   filledFilter.forEach((item) => {
     if (request.query[item]) {
       filter[item] = request.query[item];
