@@ -10,7 +10,7 @@ const insertPromotionSize = async (request, response) => {
 
   const errValidation = await validation.validationDataPromotionSizes(data);
 
-  if (errValidation == null) {
+  if (errValidation === null) {
     const dataPromotionSize = {
       promotion_id: parseInt(request.body.promotion_id),
       size_id: parseInt(request.body.size_id)
@@ -38,8 +38,8 @@ const getPromotionSizes = async (request, response) => {
   sort = sort || 'ps.created_at';
   const filledFilter = ['size_id'];
   const filter = {};
-  page = ((page != null && page !== '') ? parseInt(page) : 1);
-  limit = ((limit != null && limit !== '') ? parseInt(limit) : 5);
+  page = ((page !== null && page !== '') ? parseInt(page) : 1);
+  limit = ((limit !== null && limit !== '') ? parseInt(limit) : 5);
   order = order || 'desc';
   let pagination = { page, limit };
   let route = 'PromotionSizes?';
@@ -61,7 +61,7 @@ const getPromotionSizes = async (request, response) => {
   route += searchParam;
 
   const errValidation = await validation.validationPagination(pagination);
-  if (errValidation == null) {
+  if (errValidation === null) {
     const offset = (page - 1) * limit;
     console.log(offset);
     const data = { name, filter, limit, offset, sort, order };
@@ -104,13 +104,13 @@ const updatePatchPromotionSize = async (request, response) => {
       if (dataPromotionSize.length > 0) {
         const data = {
           promotion_id: parseInt(request.body.promotion_id),
-          size_id: parseInt(request.body.sizeId)
+          size_id: parseInt(request.body.size_id)
         };
 
         const errValidation = await validation.validationDataPromotionSizes(data);
 
-        if (errValidation == null) {
-          const resultDataPromotionSize = await promotionSizeModel.updateDataPromotionSize(dataPromotionSize, id);
+        if (errValidation === null) {
+          const resultDataPromotionSize = await promotionSizeModel.updateDataPromotionSize(data, id);
           let success = false;
           if (resultDataPromotionSize.affectedRows > 0) {
             success = true;
@@ -136,22 +136,18 @@ const updatePatchPromotionSize = async (request, response) => {
 };
 
 const deletePromotionSize = async (request, response) => {
-  // auth.verifyUser(request, response, async(error) => {
-  const { id } = request.params;
+  const {
+    id
+  } = request.params;
 
   const getDataPromotionSize = await promotionSizeModel.getDataPromotionSize(id);
+  let success = false;
   if (getDataPromotionSize.length > 0) {
-    let success = false;
-
-    const resultDataPromotionSizeDeliveryMethod = await promotionSizeModel.deleteDataPromotionSizeDeliveryMethod(id);
-    if (resultDataPromotionSizeDeliveryMethod.affectedRows > 0) {
-      success = true;
-    }
+    success = true;
     if (success) {
       const resultDataPromotionSize = await promotionSizeModel.deleteDataPromotionSize(id);
       if (resultDataPromotionSize.affectedRows > 0) {
-        const result = await promotionSizeModel.getDataPromotionSize(id);
-        showApi.showResponse(response, 'Data promotion size deleted successfully!', result);
+        showApi.showResponse(response, 'Data promotion size deleted successfully!', getDataPromotionSize[0]);
       } else {
         showApi.showResponse(response, 'Data promotion size failed to delete!', null, 500);
       }
