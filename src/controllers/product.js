@@ -4,6 +4,7 @@ const showApi = require('../helpers/showResponse');
 const upload = require('../helpers/upload').single('image');
 // const auth = require('../helpers/auth');
 const validation = require('../helpers/validation');
+const validator = require('validator');
 
 const {
   APP_URL
@@ -163,9 +164,13 @@ const getProduct = async (request, response) => {
     id
   } = request.params;
 
+  if (!id || !validator.isInt(id)) {
+    return showApi.showResponse(response, 'Id not valid', null, null, 400);
+  }
+
   const result = await productModel.getDataProduct(id);
   if (result.length > 0) {
-    return showApi.showResponse(response, 'Detail Product', result[0]);
+    return showApi.showResponse(response, 'Detail Product', showApi.dataMapping(result)[0]);
   } else {
     return showApi.showResponse(response, 'Detail Product not found!', null, 404);
   }

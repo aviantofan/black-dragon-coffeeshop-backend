@@ -61,7 +61,12 @@ exports.countDataProducts = (data) => new Promise((resolve, reject) => {
 });
 
 exports.getDataProduct = (id) => new Promise((resolve, reject) => {
-  db.query('select name, price, image,category_id  from products where id=?', [id], (err, res) => {
+  const query = `
+  SELECT *
+  FROM products WHERE id=?
+  `;
+
+  db.query(query, [id], (err, res) => {
     if (err) reject(err);
     resolve(res);
   });
