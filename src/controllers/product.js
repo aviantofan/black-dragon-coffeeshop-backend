@@ -188,7 +188,8 @@ const insertProduct = async (request, response) => {
       stocks: request.body.stocks,
       delivery_time_start: request.body.deliveryTimeStart,
       delivery_time_end: request.body.deliveryTimeEnd,
-      category_id: request.body.categoryId
+      category_id: request.body.categoryId,
+      price_product: request.body.priceProduct
     };
 
     let errValidation = await validation.validationDataProducts(data);
@@ -254,6 +255,7 @@ const updateProduct = (request, response) => {
             delivery_time_end: request.body.deliveryTimeEnd,
             category_id: request.body.categoryId
           };
+
           let errValidation = await validation.validationDataProducts(data);
 
           if (request.file) {

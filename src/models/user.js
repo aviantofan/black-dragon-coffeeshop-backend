@@ -17,7 +17,7 @@ exports.getDataUserByEmail = (email) => new Promise((resolve, reject) => {
   });
 });
 
-exports.getDataUerByEmailUpdate = (email, id) => new Promise((resolve, reject) => {
+exports.getDataUserByEmailUpdate = (email, id) => new Promise((resolve, reject) => {
   db.query('select * from auth_users where email=? and id!=?', [email, id], (err, res) => {
     if (err) reject(err);
     resolve(res);
