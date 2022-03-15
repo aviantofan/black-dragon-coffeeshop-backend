@@ -1,13 +1,14 @@
-/* eslint-disable no-unused-vars */
-const auth = require('express').Router()
-// const { verifyUser } = require('../helpers/auth');
+const auth = require('express').Router();
 
 const {
-  login,
-  register
-} = require('../controllers/auth')
+  signup,
+  verifyReset,
+  login
+} = require('../controllers/auth');
 
-auth.post('/login', login)
-auth.post('/register', register)
+auth.post('/login', login);
+// auth.post('/register', register)
+auth.post('/signup', signup);
+auth.post('/verify-reset', verifyReset);
 
-module.exports = auth
+module.exports = auth;
