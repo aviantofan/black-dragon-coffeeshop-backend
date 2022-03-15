@@ -1,11 +1,42 @@
 const promotionDeliveryMethodModel = require('../models/promotionDeliveryMethod');
 const showApi = require('../helpers/showResponse');
 const validation = require('../helpers/validation');
+const validator = require('validator');
 
 const insertPromotionDeliveryMethod = async (request, response) => {
   const data = {
     promotion_id: parseInt(request.body.promotion_id),
     delivery_method_id: parseInt(request.body.delivery_method_id)
+  };
+
+  const errValidation = await validation.validationDataPromotionDeliveryMethods(data);
+
+  if (errValidation === null) {
+    const dataPromotionDeliveryMethod = {
+      promotion_id: parseInt(request.body.promotion_id),
+      delivery_method_id: parseInt(request.body.delivery_method_id)
+    };
+
+    const resultDataPromotionDeliveryMethod = await promotionDeliveryMethodModel.insertDataPromotionDeliveryMethod(dataPromotionDeliveryMethod);
+    let success = false;
+    if (resultDataPromotionDeliveryMethod.affectedRows > 0) {
+      success = true;
+    }
+    if (success) {
+      const result = await promotionDeliveryMethodModel.getDataPromotionDeliveryMethod(resultDataPromotionDeliveryMethod.insertId);
+      showApi.showResponse(response, 'Data promotion delivery method created successfully!', result[0]);
+    } else {
+      showApi.showResponse(response, 'Data promotion delivery method failed to create!', null, null, 500);
+    }
+  } else {
+    showApi.showResponse(response, 'Data promotion delivery method not valid', null, errValidation, 400);
+  }
+};
+
+const insertPromotionDeliveryMethod2 = async (request, response) => {
+  const data = {
+    promotion_id: request.body.promotion_id,
+    delivery_method_id: request.body.delivery_method_id
   };
 
   const errValidation = await validation.validationDataPromotionDeliveryMethods(data);
@@ -84,6 +115,25 @@ const getPromotionDeliveryMethods = async (request, response) => {
   }
 };
 
+const getListPromotionDeliveryMethodByIdPromotion = async (request, response) => {
+  const { idPromotion } = request.params;
+
+  if (!validator.isEmpty(idPromotion)) {
+    if (validator.isNumeric(idPromotion)) {
+      const result = await promotionDeliveryMethodModel.getDataPromotionDeliveryMethodsByIdPromotion(idPromotion);
+      if (result.length > 0) {
+        return showApi.showResponse(response, 'List Data Promotion delivery method', result);
+      } else {
+        return showApi.showResponse(response, 'Data not found', null, 404);
+      }
+    } else {
+      return showApi.showResponse(response, 'Id Promo must be filled', null, 400);
+    }
+  } else {
+    return showApi.showResponse(response, 'Id promo must be filled', null, 400);
+  }
+};
+
 const getPromotionDeliveryMethod = async (request, response) => {
   const { id } = request.params;
 
@@ -95,6 +145,24 @@ const getPromotionDeliveryMethod = async (request, response) => {
   }
 };
 
+const getPromotionDeliveryMethod2 = async (request, response) => {
+  const { id } = request.params;
+
+  if (!validator.isEmpty(id)) {
+    if (validator.isNumeric(id)) {
+      const result = await promotionDeliveryMethodModel.getDataPromotionDeliveryMethod2(id);
+      if (result.length > 0) {
+        return showApi.showResponse(response, 'Detail Promotion Delivery Method', result[0]);
+      } else {
+        return showApi.showResponse(response, 'Detail Promotion Delivery Method not found!', null, null, 404);
+      }
+    } else {
+      return showApi.showResponse(response, 'Id must be a numeric!', null, null, 404);
+    }
+  } else {
+    return showApi.showResponse(response, 'Id must be filled!', null, null, 404);
+  }
+};
 const updatePatchPromotionDeliveryMethod = async (request, response) => {
   const { id } = request.params;
 
@@ -136,6 +204,46 @@ const updatePatchPromotionDeliveryMethod = async (request, response) => {
   }
 };
 
+const updatePatchPromotionDeliveryMethod2 = async (request, response) => {
+  const { id } = request.params;
+
+  if (!validator.isEmpty(id)) {
+    if (validator.isNumeric(id)) {
+      const dataPromotionDeliveryMethod = await promotionDeliveryMethodModel.getDataPromotionDeliveryMethod2(id);
+      if (dataPromotionDeliveryMethod.length > 0) {
+        const data = {
+          promotion_id: request.body.promotion_id,
+          delivery_method_id: request.body.delivery_method_id
+        };
+
+        const errValidation = await validation.validationDataPromotionDeliveryMethods(data);
+
+        if (errValidation === null) {
+          const resultDataPromotionDeliveryMethod = await promotionDeliveryMethodModel.updateDataPromotionDeliveryMethod(data, id);
+          let success = false;
+          if (resultDataPromotionDeliveryMethod.affectedRows > 0) {
+            success = true;
+          }
+          if (success) {
+            const result = await promotionDeliveryMethodModel.getDataPromotionDeliveryMethod2(id);
+            showApi.showResponse(response, 'Data promotion delivery method updated successfully!', result);
+          } else {
+            showApi.showResponse(response, 'Data promotion delivery method failed to update!', 500);
+          }
+        } else {
+          showApi.showResponse(response, 'Data promotion delivery method not valid', null, errValidation, 400);
+        }
+      } else {
+        return showApi.showResponse(response, 'Data promotion delivery method not found', null, null, 400);
+      }
+    } else {
+      return showApi.showResponse(response, 'Id must be a number', null, null, 400);
+    }
+  } else {
+    return showApi.showResponse(response, 'Id must be filled.', null, null, 400);
+  }
+};
+
 const deletePromotionDeliveryMethod = async (request, response) => {
   const {
     id
@@ -158,4 +266,34 @@ const deletePromotionDeliveryMethod = async (request, response) => {
   }
 };
 
-module.exports = { insertPromotionDeliveryMethod, getPromotionDeliveryMethods, getPromotionDeliveryMethod, updatePatchPromotionDeliveryMethod, deletePromotionDeliveryMethod };
+const deletePromotionDeliveryMethod2 = async (request, response) => {
+  const {
+    id
+  } = request.params;
+
+  if (!validator.isEmpty(id)) {
+    if (validator.isNumeric(id)) {
+      const getDataPromotionDeliveryMethod = await promotionDeliveryMethodModel.getDataPromotionDeliveryMethod(id);
+      let success = false;
+      if (getDataPromotionDeliveryMethod.length > 0) {
+        success = true;
+        if (success) {
+          const resultDataPromotionDeliveryMethod = await promotionDeliveryMethodModel.deleteDataPromotionDeliveryMethod(id);
+          if (resultDataPromotionDeliveryMethod.affectedRows > 0) {
+            showApi.showResponse(response, 'Data promotion delivery deleted successfully!', getDataPromotionDeliveryMethod[0]);
+          } else {
+            showApi.showResponse(response, 'Data promotion delivery method failed to delete!', null, null, 500);
+          }
+        }
+      } else {
+        showApi.showResponse(response, 'Data promotion delivery method not found!', null, null, 404);
+      }
+    } else {
+      showApi.showResponse(response, 'Id must be a number!', null, null, 404);
+    }
+  } else {
+    showApi.showResponse(response, 'Id must be filled!', null, null, 404);
+  }
+};
+
+module.exports = { insertPromotionDeliveryMethod, insertPromotionDeliveryMethod2, getPromotionDeliveryMethods, getListPromotionDeliveryMethodByIdPromotion, getPromotionDeliveryMethod, getPromotionDeliveryMethod2, updatePatchPromotionDeliveryMethod, updatePatchPromotionDeliveryMethod2, deletePromotionDeliveryMethod, deletePromotionDeliveryMethod2 };
