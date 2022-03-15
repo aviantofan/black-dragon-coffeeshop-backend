@@ -1,16 +1,17 @@
-const {
-  body,
-  validationResult
-} = require('express-validator');
+// const {
+//   body,
+//   validationResult
+// } = require('express-validator');
 const categoryModel = require('../models/category');
 const deliveryMethodModel = require('../models/deliveryMethod');
 const sizeModel = require('../models/size');
 const validator = require('validator');
 const productModel = require('../models/product');
+const userModel = require('../models/user');
 
 exports.validationDataProducts = async (data) => {
   let result = null;
-  if (data.name == null || data.name == '') {
+  if (data.name === null || data.name === '') {
     result = {
       name: 'Name must be filled'
     };
@@ -18,56 +19,56 @@ exports.validationDataProducts = async (data) => {
 
   console.log(data);
 
-  if (data.category_id == null || data.category_id == '') {
+  if (data.category_id === null || data.category_id === '') {
     result = {
       ...result,
       category_id: 'Id category must be filled.'
     };
   } else {
     const getDataCategory = await categoryModel.getDataCategory(data.category_id);
-    if (getDataCategory.length == 0) {
+    if (getDataCategory.length === 0) {
       result = {
         category: 'Category not found.'
       };
     }
   }
 
-  // if (data.delivery_method_id == null || data.delivery_method_id == '') {
+  // if (data.delivery_method_id === null || data.delivery_method_id === '') {
   //   result = {
   //     ...result,
   //     category_id: 'id delivery method must be filled.'
   //   };
   // } else {
   //   const getDeliveryMethod = await deliveryMethodModel.getDataDeliveryMethod(data.delivery_method_id);
-  //   if (getDeliveryMethod == 0) {
+  //   if (getDeliveryMethod === 0) {
   //     result = {
   //       delivery_method_id: 'id delivery method not found.'
   //     };
   //   }
   // }
 
-  // if (data.size_id == null || data.size_id == '') {
+  // if (data.size_id === null || data.size_id === '') {
   //   result = {
   //     ...result,
   //     size_id: 'id size must be filled.'
   //   };
   // } else {
   //   const getDataSize = await sizeModel.getDataSize(data.size_id);
-  //   if (getDataSize == 0) {
+  //   if (getDataSize === 0) {
   //     result = {
   //       size: 'id size not found.'
   //     };
   //   }
   // }
 
-  if (data.description == null || data.description == '') {
+  if (data.description === null || data.description === '') {
     result = {
       ...result,
       description: 'Description must be filled.'
     };
   }
 
-  if (data.price == null || data.price == '') {
+  if (data.price === null || data.price === '') {
     result = {
       ...result,
       price: 'Price must be filled'
@@ -77,14 +78,14 @@ exports.validationDataProducts = async (data) => {
       ...result,
       price: 'Price must be a number.'
     };
-  } else if (parseInt(data.price) == 0) {
+  } else if (parseInt(data.price) === 0) {
     result = {
       ...result,
       price: 'Price must be must be greater than 0.'
     };
   }
 
-  if (data.stocks == null || data.stocks == '') {
+  if (data.stocks === null || data.stocks === '') {
     result = {
       ...result,
       stocks: 'Stock must be filled'
@@ -94,21 +95,21 @@ exports.validationDataProducts = async (data) => {
       ...result,
       stocks: 'Stock must be a number.'
     };
-  } else if (parseInt(data.stocks) == 0) {
+  } else if (parseInt(data.stocks) === 0) {
     result = {
       ...result,
       stocks: 'Stock must be must be greater than 0.'
     };
   }
 
-  if (data.delivery_time_start == null || data.delivery_time_start == '') {
+  if (data.delivery_time_start === null || data.delivery_time_start === '') {
     result = {
       ...result,
       delivery_time_start: 'Delivery time start must be filled'
     };
   }
 
-  if (data.delivery_time_end == null || data.delivery_time_end == '') {
+  if (data.delivery_time_end === null || data.delivery_time_end === '') {
     result = {
       ...result,
       delivery_time_end: 'Delivery time end must be filled'
@@ -198,7 +199,7 @@ exports.validationDataDeliveryMethod = async (data) => {
 
 exports.validationDataPromotionSizes = async (data) => {
   let result = null;
-  if (data.promotion_id == null || data.promotion_id === undefined) {
+  if (data.promotion_id === null || data.promotion_id === undefined) {
     result = {
       promotion_id: 'promotion_id must be filled'
     };
@@ -209,7 +210,7 @@ exports.validationDataPromotionSizes = async (data) => {
     };
   }
 
-  if (data.size_id == null || data.size_id === undefined) {
+  if (data.size_id === null || data.size_id === undefined) {
     result = {
       size_id: 'size_id must be filled'
     };
@@ -604,7 +605,7 @@ exports.validationUser = async (data) => {
       email: 'Email must be filled.'
     };
   } else {
-    const resultEmail = await userModel.getDataUerByEmailUpdate(
+    const resultEmail = await userModel.getDataUserByEmailUpdate(
       data.email,
       data.id
     );
