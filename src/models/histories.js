@@ -99,6 +99,7 @@ exports.listHistories = (data) => {
     ) as image, h.total, h.subtotal, h.shipping_cost as shippingCost, h.delivery_status as deliveryStatus, h.payment_method_id as paymentMethodId
     FROM histories h
     ${userId ? `WHERE h.user_profile_id = ${userId}` : ''}
+    ${userId ? `AND h.deleted_at IS NULL` : ''}
     ORDER BY h.id  DESC
     LIMIT ${limit} OFFSET ${offset}
     `
