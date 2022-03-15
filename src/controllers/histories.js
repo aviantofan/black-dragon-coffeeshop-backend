@@ -48,7 +48,6 @@ exports.getHistories = async (request, response) => {
   const errValidation = await validation.validationPagination(pagination);
   if (errValidation === null) {
     const offset = (page - 1) * limit;
-    console.log(offset);
     const data = {
       name,
       filter,
@@ -76,8 +75,6 @@ exports.getHistories = async (request, response) => {
         }
       }
     }
-
-    // console.log(data);
 
     // const dataProduct = await historyModel.getDataHistoriesByFilter(data);
     const dataProduct = await historyModel.listHistories(data);
@@ -168,7 +165,6 @@ exports.insertHistories = async (request, response) => {
     const authId = request.headers.user.id;
 
     const userProfile = await userModel.getUserProfile(authId);
-    console.log(userProfile);
 
     if (userProfile.length > 0) {
       data.user_profile_id = userProfile[0].id;
@@ -180,7 +176,6 @@ exports.insertHistories = async (request, response) => {
 
     data.payment_status = '0';
     data.delivery_status = '0';
-    // console.log(data);
     const insertedHistories = await historyModel.insertDataHistory(data);
 
     if (insertedHistories.affectedRows > 0) {

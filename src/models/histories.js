@@ -42,8 +42,6 @@ exports.getDataHistoriesByFilter = (data) =>
         resolve(result);
       }
     );
-
-    console.log(query.sql);
   });
 
 exports.countDataHistoriesByFilter = (data) =>
@@ -108,7 +106,6 @@ exports.listHistories = (data) => {
       if (error) reject(error);
       resolve(result);
     })
-    console.log(ss.sql);
   })
 }
 
