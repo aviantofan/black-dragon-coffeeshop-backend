@@ -170,7 +170,7 @@ const getPromotion = async(request, response) => {
     if (result.length > 0) {
         return showApi.showResponse(response, 'Detail Promotion', showApi.dataMapping(result)[0]);
     } else {
-        return showApi.showResponse(response, 'Detail Promotion not found!', null, 404);
+        return showApi.showResponse(response, 'Detail Promotion not found!', null, null, 404);
     }
 };
 
@@ -229,13 +229,13 @@ const updatePromotion = async(request, response) => {
                         return showApi.showResponse(response, 'Data Promotion failed to update !', null, null, 400);
                     }
                 } else {
-                    return showApi.showResponse(response, 'Data not found!');
+                    return showApi.showResponse(response, 'Data not found!', null, null, 400);
                 }
             } else {
-                return showApi.showResponse(response, 'Id must be a number!');
+                return showApi.showResponse(response, 'Id must be a number!', null, null, 400);
             }
         } else {
-            return showApi.showResponse(response, 'Id must be filled!');
+            return showApi.showResponse(response, 'Id must be filled!', null, null, 400);
         }
     } catch (error) {
         return showApi.showResponse(response, error.message, null, null, 500);
@@ -257,13 +257,13 @@ const deletePromotion = async(request, response) => {
                         return showApi.showResponse(response, 'Data Promotion failed to delete !');
                     }
                 } else {
-                    return showApi.showResponse(response, 'Data not found!');
+                    return showApi.showResponse(response, 'Data not found!', null, null, 400);
                 }
             } else {
-                return showApi.showResponse(response, 'Id must be a number!');
+                return showApi.showResponse(response, 'Id must be a number!', null, null, 400);
             }
         } else {
-            return showApi.showResponse(response, 'Id must be filled!');
+            return showApi.showResponse(response, 'Id must be filled!', null, null, 400);
         }
     } catch (error) {
         return showApi.showResponse(response, error.message, null, null, 500);
