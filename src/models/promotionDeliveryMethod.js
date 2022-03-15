@@ -16,7 +16,7 @@ exports.getDataPromotionDeliveryMethods = (data) => new Promise((resolve, reject
     }
   });
 
-  const query = db.query(`SELECT pdm.id AS id, pr.name AS promotion, dm.name AS deliveryMethod
+  db.query(`SELECT pdm.id AS id, pr.name AS promotion, dm.name AS deliveryMethod
     FROM promotion_delivery_methods pdm JOIN promotions pr ON pr.id = pdm.promotion_id 
     JOIN delivery_methods dm ON dm.id = pdm.delivery_method_id 
     where pr.name like '%${data.name}%' ${resultFillter}
@@ -24,7 +24,6 @@ exports.getDataPromotionDeliveryMethods = (data) => new Promise((resolve, reject
     if (error) reject(error);
     resolve(result);
   });
-  console.log(query.sql);
 });
 
 exports.countDataPromotionDeliveryMethods = (data) => new Promise((resolve, reject) => {
@@ -44,10 +43,30 @@ exports.countDataPromotionDeliveryMethods = (data) => new Promise((resolve, reje
   });
 });
 
+exports.getDataPromotionDeliveryMethodsByIdPromotion = (id) => new Promise((resolve, reject) => {
+  db.query(`SELECT pdm.promotion_id,pdm.delivery_method_id, dm.name AS deliveryMethod
+    FROM promotion_delivery_methods pdm JOIN promotions pr ON pr.id = pdm.promotion_id 
+    JOIN delivery_methods dm ON dm.id = pdm.delivery_method_id 
+    where pdm.promotion_id=?`, [id], (error, result) => {
+    if (error) reject(error);
+    resolve(result);
+  });
+});
+
 exports.getDataPromotionDeliveryMethod = (id) => new Promise((resolve, reject) => {
   db.query('select * from promotion_delivery_methods where id=?', [id], (err, res) => {
     if (err) reject(err);
     resolve(res);
+  });
+});
+
+exports.getDataPromotionDeliveryMethod2 = (id) => new Promise((resolve, reject) => {
+  db.query(`SELECT pdm.id, pdm.promotion_id,pdm.delivery_method_id, dm.name AS deliveryMethod
+  FROM promotion_delivery_methods pdm JOIN promotions pr ON pr.id = pdm.promotion_id 
+  JOIN delivery_methods dm ON dm.id = pdm.delivery_method_id 
+  where pdm.id=?`, [id], (error, result) => {
+    if (error) reject(error);
+    resolve(result);
   });
 });
 

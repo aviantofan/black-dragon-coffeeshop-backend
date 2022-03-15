@@ -156,7 +156,7 @@ const getListPromotions = async(request, response) => {
             const pageInfo = showApi.pageInfoCreator(total[0].total, 'promotions', dataFilter);
             return showApi.returningSuccess(response, 200, 'Data promotions retrieved successfully!', showApi.dataMapping(resultDataPromo), pageInfo);
         } else {
-            return showApi.showResponse(response, 'Data not found!', null, null, 400);
+            return showApi.showResponse(response, 'Detail Promotion not found!', null, null, 404);
         }
     } catch (err) {
         return showApi.showResponse(response, err.message, null, null, 500);
@@ -170,7 +170,7 @@ const getPromotion = async(request, response) => {
     if (result.length > 0) {
         return showApi.showResponse(response, 'Detail Promotion', showApi.dataMapping(result)[0]);
     } else {
-        return showApi.showResponse(response, 'Detail Promotion not found!', null, null, 404);
+        return showApi.showResponse(response, 'Detail Promotion not found!', null, 404);
     }
 };
 
@@ -212,15 +212,6 @@ const updatePromotion = async(request, response) => {
                     const error = null;
                     const data = {};
 
-                    filled.forEach((value) => {
-                        if (request.body[value]) {
-                            if (request.file) {
-                                data.image = request.file.path;
-                            }
-                            data[value] = request.body[value];
-                        }
-                    });
-
                     const result = await promotionModel.updateDataPromotion(data, id);
                     if (result.affectedRows > 0) {
                         const result = await promotionModel.getDataPromotion(id);
@@ -234,8 +225,6 @@ const updatePromotion = async(request, response) => {
             } else {
                 return showApi.showResponse(response, 'Id must be a number!', null, null, 400);
             }
-        } else {
-            return showApi.showResponse(response, 'Id must be filled!', null, null, 400);
         }
     } catch (error) {
         return showApi.showResponse(response, error.message, null, null, 500);
