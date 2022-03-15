@@ -8,6 +8,7 @@ const {
   showResponse
 } = require('../helpers/showResponse');
 const userModel = require('../models/userModel');
+const modelUser = require('../models/user');
 const authModel = require('../models/authModel');
 const otpCodeModel = require('../models/otpCodeModel');
 const {
@@ -379,6 +380,12 @@ exports.login = async (req, res) => {
         password: hashPassword
       } = dataUser[0];
 
+      const userProfile = await modelUser.getUserProfile(dataUser[0].id);
+
+      if (userProfile.length < 1) {
+        return showResponse(res, 'User profile is not found', null, null, 404);
+      }
+
       const checkPassword = await bcrypt.compare(dataLogin.password, hashPassword);
       console.log(checkPassword);
       if (checkPassword) {
@@ -386,11 +393,13 @@ exports.login = async (req, res) => {
           const data = {
             id: dataUser[0].id,
             role: dataUser[0].role,
-            confirm: dataUser[0].confirm
+            confirm: dataUser[0].confirm,
+            userProfileId: userProfile[0].id,
           };
           const token = jwt.sign(data, APP_SECRET);
           return showApi.showResponse(res, 'Login Success!', {
             id: dataUser[0].id,
+            userProfileId: userProfile[0].id,
             token
           });
         } else {

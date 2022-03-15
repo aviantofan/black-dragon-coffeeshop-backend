@@ -32,6 +32,12 @@ const insertProductHistory = async (request, response) => {
 
   console.log(data);
 
+  for (const key in data) {
+    if (!data[key]) {
+      return showApi.showResponse(response, `${key} must be filled`, null, null, 400);
+    }
+  }
+
   if (validator.isEmpty(data.product_id)) {
     return showApi.showResponse(response, 'id product must be filled.', null, null, 400);
   } else if (!validator.isNumeric(data.product_id)) {
