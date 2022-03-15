@@ -34,7 +34,7 @@ exports.getDataHistoriesByFilter = (data) =>
       FROM histories h 
       LEFT JOIN product_histories ph ON ph.history_id = h.id 
       JOIN products p ON p.id = ph.product_id
-      WHERE p.name like '%${data.name}%' ${resultFillter} ${userId ? `AND h.user_profile_id = ${userId}` : ''}
+      WHERE p.name like '%${data.name}%' ${resultFillter} ${userId ? `AND h.user_profile_id = ${userId}` : ''} ${userId ? `AND h.deleted_at IS NULL` : ''}
       ORDER by ${data.sort} ${data.order} LIMIT ${data.limit} OFFSET ${data.offset}
       `,
       (error, result) => {
