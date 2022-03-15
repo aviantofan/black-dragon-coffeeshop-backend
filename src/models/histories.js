@@ -30,11 +30,11 @@ exports.getDataHistoriesByFilter = (data) =>
 
     const query = db.query(
       `
-      SELECT DISTINCT h.id, p.name,p.price, p.image, h.delivery_status as deliveryStatus
+      SELECT h.id, p.name,p.price, p.image, h.delivery_status as deliveryStatus
       FROM histories h 
       LEFT JOIN product_histories ph ON ph.history_id = h.id 
       JOIN products p ON p.id = ph.product_id
-      WHERE p.name like '%${data.name}%' ${resultFillter} ${userId ? `AND h.user_profile_id = ${userId}` : ''} ${userId ? `AND h.deleted_at IS NULL` : ''}
+      WHERE p.name like '%${data.name}%' ${resultFillter} ${userId ? `AND h.user_profile_id = ${userId}` : ''} ${userId ? `AND h.deleted_at IS NULL` : ''} ${userId ? `AND ph.deleted_at IS NULL` : ''}
       ORDER by ${data.sort} ${data.order} LIMIT ${data.limit} OFFSET ${data.offset}
       `,
       (error, result) => {
@@ -71,6 +71,63 @@ exports.countDataHistoriesByFilter = (data) =>
       }
     );
   });
+
+exports.listHistories = (data) => {
+
+  const {
+    limit,
+    offset,
+    userId
+  } = data;
+
+  return new Promise((resolve, reject) => {
+    const query = `
+    SELECT h.id, (
+      SELECT p.name 
+        FROM product_histories ph 
+        JOIN products p 
+        ON p.id = ph.product_id 
+        JOIN histories
+        ON h.id = ph.history_id
+        LIMIT 1
+    ) as name, (
+      SELECT p.image 
+        FROM product_histories ph 
+        JOIN products p 
+        ON p.id = ph.product_id 
+        JOIN histories
+        ON h.id = ph.history_id
+        LIMIT 1
+    ) as image, h.total, h.delivery_status as deliveryStatus
+    FROM histories h
+    ${userId ? `WHERE h.user_profile_id = ${userId}` : ''}
+    ORDER BY h.id  DESC
+    LIMIT ${limit} OFFSET ${offset}
+    `
+    const ss = db.query(query, (error, result) => {
+      if (error) reject(error);
+      resolve(result);
+    })
+    console.log(ss.sql);
+  })
+}
+
+exports.countListHistories = (data) => {
+
+  const {
+    userId
+  } = data;
+
+  return new Promise((resolve, reject) => {
+    const query = `
+      SELECT count(*) as total FROM histories h ${userId ? `WHERE h.user_profile_id = ${userId}` : ''}
+    `;
+    db.query(query, (error, result) => {
+      if (error) reject(error);
+      resolve(result);
+    });
+  });
+}
 
 exports.getDataHistoryById = (id, userId = false) => {
   return new Promise((resolve, reject) => {
@@ -119,3 +176,15 @@ exports.deleteDataHistory = (id) => {
     });
   });
 };
+
+exports.softDeleteDataHistory = (id) => {
+  return new Promise((resolve, reject) => {
+    const query = `
+        UPDATE histories SET deleted_at = NOW() WHERE id = ${id}
+      `;
+    db.query(query, (error, result) => {
+      if (error) reject(error);
+      resolve(result);
+    });
+  });
+}
