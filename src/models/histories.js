@@ -98,7 +98,7 @@ exports.listHistories = (data) => {
         JOIN histories
         ON h.id = ph.history_id
         LIMIT 1
-    ) as image, h.total, h.delivery_status as deliveryStatus
+    ) as image, h.total, h.subtotal, h.shipping_cost as shippingCost, h.delivery_status as deliveryStatus, h.payment_method_id as paymentMethodId
     FROM histories h
     ${userId ? `WHERE h.user_profile_id = ${userId}` : ''}
     ORDER BY h.id  DESC
