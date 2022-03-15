@@ -3,6 +3,7 @@ const showApi = require('../helpers/showResponse');
 const validation = require('../helpers/validation');
 const userModel = require('../models/user');
 const authModel = require('../models/authModel');
+const productHistoryModel = require('../models/productHistory');
 const {
   requestMapping
 } = require('../helpers/requestHandler');
@@ -78,10 +79,11 @@ exports.getHistories = async (request, response) => {
 
     // console.log(data);
 
-    const dataProduct = await historyModel.getDataHistoriesByFilter(data);
+    // const dataProduct = await historyModel.getDataHistoriesByFilter(data);
+    const dataProduct = await historyModel.listHistories(data);
 
     if (dataProduct.length > 0) {
-      const result = await historyModel.countDataHistoriesByFilter(data);
+      const result = await historyModel.countListHistories(data);
       try {
         const {
           total
@@ -256,6 +258,7 @@ exports.deleteDataHistory = async (request, response) => {
     }
 
     const authId = request.headers.user.id;
+    const role = request.headers.user.role;
     const userProfile = await userModel.getUserProfile(authId);
 
     if (userProfile.length < 1) {
@@ -268,11 +271,23 @@ exports.deleteDataHistory = async (request, response) => {
       return showApi.showResponse(response, 'History not found', null, null, 404);
     }
 
-    const deletedHistories = await historyModel.deleteDataHistory(id);
+    if (role === 'admin') {
+      const deletedHistories = await historyModel.deleteDataHistory(id);
 
-    if (deletedHistories.affectedRows > 0) {
-      return showApi.showResponse(response, 'History deleted', history[0], null, 200);
+      if (deletedHistories.affectedRows > 0) {
+        return showApi.showResponse(response, 'History deleted', history[0], null, 200);
+      }
+    } else {
+      // const softDeleteDataHistory = await productHistoryModel.deleteDataProductHistory(id);
+      const softDeleteDataHistory = await historyModel.softDeleteDataHistory(id);
+
+      if (softDeleteDataHistory.affectedRows > 0) {
+        return showApi.showResponse(response, 'History deleted', history[0], null, 200);
+      }
     }
+
+
+
 
     return showApi.showResponse(response, 'History not deleted', null, null, 400);
   } catch (error) {
