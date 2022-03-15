@@ -1,4 +1,6 @@
 const promotionDeliveryMethodModel = require('../models/promotionDeliveryMethod');
+const promotionModel = require('../models/promotion')
+const deliveryMethodModel = require('../models/deliveryMethod')
 const showApi = require('../helpers/showResponse');
 const validation = require('../helpers/validation');
 const validator = require('validator');
@@ -176,6 +178,7 @@ const updatePatchPromotionDeliveryMethod = async(request, response) => {
                 };
                 console.log(data);
 
+
                 const errValidation = await validation.validationDataPromotionDeliveryMethods(data);
 
                 if (errValidation === null) {
@@ -211,28 +214,52 @@ const updatePatchPromotionDeliveryMethod2 = async(request, response) => {
         if (validator.isNumeric(id)) {
             const dataPromotionDeliveryMethod = await promotionDeliveryMethodModel.getDataPromotionDeliveryMethod2(id);
             if (dataPromotionDeliveryMethod.length > 0) {
-                const data = {
-                    promotion_id: request.body.promotion_id,
-                    delivery_method_id: request.body.delivery_method_id
-                };
+                const filled = ['promotion_id', 'delivery_method_id'];
+                const data = {}
 
-                const errValidation = await validation.validationDataPromotionDeliveryMethods(data);
-
-                if (errValidation === null) {
-                    const resultDataPromotionDeliveryMethod = await promotionDeliveryMethodModel.updateDataPromotionDeliveryMethod(data, id);
-                    let success = false;
-                    if (resultDataPromotionDeliveryMethod.affectedRows > 0) {
-                        success = true;
+                filled.forEach(async(value) => {
+                    if (request.body[value]) {
+                        data[value] = request.body[value];
                     }
-                    if (success) {
-                        const result = await promotionDeliveryMethodModel.getDataPromotionDeliveryMethod2(id);
-                        showApi.showResponse(response, 'Data promotion delivery method updated successfully!', result);
+                })
+
+                if (data["promotion_id"]) {
+                    if (!validator.isNumeric(data["promotion_id"])) {
+                        return showApi.showResponse(response, "Promotion id must be numeric", null, null, 400)
                     } else {
-                        showApi.showResponse(response, 'Data promotion delivery method failed to update!', 500);
+                        const getPromotion = await promotionModel.getDataPromotion(data.promotion_id)
+                        if (getPromotion.length === 0) {
+                            return showApi.showResponse(response, "Data promotion not found", null, null, 404)
+                        }
                     }
-                } else {
-                    showApi.showResponse(response, 'Data promotion delivery method not valid', null, errValidation, 400);
                 }
+
+                if (data["delivery_method_id"]) {
+                    if (!validator.isNumeric(data["delivery_method_id"])) {
+                        return showApi.showResponse(response, "delivery method id must be numeric", null, null, 400)
+                    } else {
+                        console.log(data.delivery_method_id)
+                        const getDeliveryMethod = await deliveryMethodModel.getDataDeliveryMethod(data.delivery_method_id)
+                        if (getDeliveryMethod.length === 0) {
+                            return showApi.showResponse(response, "Data delivery method id not found", null, null, 404)
+                        }
+                    }
+                }
+
+                // const errValidation = await validation.validationDataPromotionDeliveryMethods(data);
+
+                const resultDataPromotionDeliveryMethod = await promotionDeliveryMethodModel.updateDataPromotionDeliveryMethod(data, id);
+                let success = false;
+                if (resultDataPromotionDeliveryMethod.affectedRows > 0) {
+                    success = true;
+                }
+                if (success) {
+                    const result = await promotionDeliveryMethodModel.getDataPromotionDeliveryMethod2(id);
+                    showApi.showResponse(response, 'Data promotion delivery method updated successfully!', result);
+                } else {
+                    showApi.showResponse(response, 'Data promotion delivery method failed to update!', 500);
+                }
+
             } else {
                 return showApi.showResponse(response, 'Data promotion delivery method not found', null, null, 400);
             }
