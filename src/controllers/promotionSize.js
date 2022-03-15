@@ -1,6 +1,7 @@
 const promotionSizeModel = require('../models/promotionSize');
 const showApi = require('../helpers/showResponse');
 const validation = require('../helpers/validation');
+const validator = require('validator');
 
 const insertPromotionSize = async (request, response) => {
   const data = {
@@ -86,7 +87,9 @@ const getPromotionSizes = async (request, response) => {
 
 const getPromotionSize = async (request, response) => {
   const { id } = request.params;
-
+  if (!validator.isInt(id)) {
+    return showApi.showResponse(response, 'Id must be a number', null, null, 400);
+  }
   const result = await promotionSizeModel.getDataPromotionSize(id);
   if (result.length > 0) {
     return showApi.showResponse(response, 'Detail promotion size', result[0]);
@@ -139,7 +142,9 @@ const deletePromotionSize = async (request, response) => {
   const {
     id
   } = request.params;
-
+  if (!validator.isInt(id)) {
+    return showApi.showResponse(response, 'Id must be a number', null, null, 400);
+  }
   const getDataPromotionSize = await promotionSizeModel.getDataPromotionSize(id);
   let success = false;
   if (getDataPromotionSize.length > 0) {

@@ -201,11 +201,13 @@ exports.validationDataPromotionSizes = async (data) => {
   let result = null;
   if (data.promotion_id === null || data.promotion_id === undefined) {
     result = {
+      ...result,
       promotion_id: 'promotion_id must be filled'
     };
   }
   if (!data.promotion_id) {
     result = {
+      ...result,
       promotion_id: 'Invalid input, promotion_id must be a number!'
     };
   }
