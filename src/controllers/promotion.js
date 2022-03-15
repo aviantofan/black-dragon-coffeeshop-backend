@@ -170,7 +170,7 @@ const getPromotion = async(request, response) => {
     if (result.length > 0) {
         return showApi.showResponse(response, 'Detail Promotion', showApi.dataMapping(result)[0]);
     } else {
-        return showApi.showResponse(response, 'Detail Promotion not found!', null, 404);
+        return showApi.showResponse(response, 'Detail Promotion not found!', null, null, 404);
     }
 };
 
@@ -209,9 +209,15 @@ const updatePromotion = async(request, response) => {
                 const getDataPromotion = await promotionModel.getDataPromotion(id);
                 if (getDataPromotion.length > 0) {
                     const filled = ['name', 'code', 'description', 'normal_price', 'discount_value', 'available_start_at', 'available_end_at'];
-                    const error = null;
                     const data = {};
-
+                    filled.forEach((value) => {
+                        if (request.body[value]) {
+                            if (request.file) {
+                                data.image = request.file.path;
+                            }
+                            data[value] = request.body[value];
+                        }
+                    });
                     const result = await promotionModel.updateDataPromotion(data, id);
                     if (result.affectedRows > 0) {
                         const result = await promotionModel.getDataPromotion(id);
