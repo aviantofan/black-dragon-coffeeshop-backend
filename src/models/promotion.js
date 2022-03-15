@@ -1,6 +1,10 @@
 const db = require('../helpers/database');
-const { dataMapping } = require('../helpers/showResponse');
-const { APP_URL } = process.env;
+const {
+  dataMapping
+} = require('../helpers/showResponse');
+const {
+  APP_URL
+} = process.env;
 
 exports.getDataPromotions = (data) => new Promise((resolve, reject) => {
   const filled = ['discount_value', 'delivery_method_id'];
@@ -17,7 +21,7 @@ exports.getDataPromotions = (data) => new Promise((resolve, reject) => {
     if (error) reject(error);
     resolve(result);
   });
-  console.log(query.sql);
+  // console.log(query.sql);
 });
 
 exports.getListDataPromotions = (data) => new Promise((resolve, reject) => {
@@ -30,20 +34,20 @@ exports.getListDataPromotions = (data) => new Promise((resolve, reject) => {
     if (error) reject(error);
     resolve(result);
   });
-  console.log(query.sql);
+  // console.log(query.sql);
 });
 
 exports.countListPromotions = (data) => new Promise((resolve, reject) => {
   const query = db.query(
-  `SELECT count(*) AS total 
+    `SELECT count(*) AS total 
   FROM promotions pr where pr.name like '%${data.name !== null ? data.name : ''}%'
   ${data.discount_value ? `AND discount_value = ${data.discount_value}` : ''} 
   ${data.date ? `and DATE_FORMAT(pr.available_start_at,'%Y-%m-%d')='${data.date}' or DATE_FORMAT(pr.available_end_at,'%Y-%m-%d')='${data.date}'` : ''}
   ${data.normal_price ? `and pr.normal_price=${data.normal_price}` : ''}`, (error, result) => {
-    if (error) reject(error);
-    resolve(result);
-  });
-  console.log(query.sql);
+      if (error) reject(error);
+      resolve(result);
+    });
+  // console.log(query.sql);
 });
 
 exports.getDataPromotion = (id) => new Promise((resolve, reject) => {
