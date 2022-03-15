@@ -29,10 +29,9 @@ const getSizeForProductsByIdProduct = async(request, response) => {
 
 const getSizeForProduct = async(request, response) => {
     const { id } = request.params
-
     if (id) {
-        if (validator.isNumeric(idProduct)) {
-            const result = await sizeForProductModel.getDataSizeOfProductByIdProduct(idProduct)
+        if (validator.isNumeric(id)) {
+            const result = await sizeForProductModel.getDataSizeOfProduct(id)
             if (result.length > 0) {
                 return showApi.showResponse(response, 'List Data Size For Product', result)
             } else {
@@ -42,7 +41,7 @@ const getSizeForProduct = async(request, response) => {
             return showApi.showResponse(response, 'Id must be a number', null, null, 404)
         }
     } else {
-        return showApi.showResponse(response, 'Id Product must be filled', null, null, 400);
+        return showApi.showResponse(response, 'Id must be filled', null, null, 400);
     }
 };
 
@@ -89,7 +88,7 @@ const updateDataProductSize = async(request, response) => {
                         const result = await sizeForProductModel.getDataSizeOfProduct(id);
                         showApi.showResponse(response, 'Data size for product updated successfully!', result[0]);
                     } else {
-                        showApi.showResponse(response, 'Data size for product failed to update!', 500);
+                        showApi.showResponse(response, 'Data size for product failed to update!', null, null, 500);
                     }
                 } else {
                     showApi.showResponse(response, 'Data size for product not valid', null, errValidation, 400);
@@ -147,7 +146,7 @@ const deleteSizeForProduct = async(request, response) => {
     const { id } = request.params;
 
     if (id) {
-        if (!isNaN(id)) {
+        if (validator.isNumeric(id)) {
             const getDataSizeOfProduct = await sizeForProductModel.getDataSizeOfProduct(id);
             if (getDataSizeOfProduct.length > 0) {
                 const result = await sizeForProductModel.deleteDataProductSize(id);
@@ -156,10 +155,10 @@ const deleteSizeForProduct = async(request, response) => {
                     const result = await sizeForProductModel.getDataSizeOfProduct(id);
                     showApi.showResponse(response, 'Data size for product deleted successfully!', result[0]);
                 } else {
-                    showApi.showResponse(response, 'Data size product failed to delete!', null, 500);
+                    showApi.showResponse(response, 'Data size product failed to delete!', null, null, 500);
                 }
             } else {
-                showApi.showResponse(response, 'Data product not found!', null, 404);
+                showApi.showResponse(response, 'Data size for product not found!', null, null, 404);
             }
         } else {
             return showApi.showResponse(response, 'Id must be a number', null, null, 400);

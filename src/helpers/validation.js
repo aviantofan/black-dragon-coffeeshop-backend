@@ -576,6 +576,7 @@ exports.validationLogin = async(data) => {
 
 exports.validationSizeForProduct = async(data) => {
     let result = null
+    console.log("masuk validasi size for product")
     if (validator.isEmpty(data.product_id)) {
         result = { product_id: 'product_id must be filled.' }
     } else if (!validator.isNumeric(data.product_id)) {
@@ -597,6 +598,7 @@ exports.validationSizeForProduct = async(data) => {
             result = {...result, size_id: 'Data size not found.' }
         }
     }
+    return result
 }
 
 exports.validationRegister = async(data) => {
