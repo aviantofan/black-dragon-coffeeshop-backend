@@ -203,35 +203,35 @@ exports.validationDataDeliveryMethod = async(data) => {
     return result;
 };
 
-exports.validationDataPromotionSizes = async (data) => {
-  let result = null;
-  if (data.promotion_id === null || data.promotion_id === undefined) {
-    result = {
-      ...result,
-      promotion_id: 'promotion_id must be filled'
-    };
-  }
-  if (!data.promotion_id) {
-    result = {
-      ...result,
-      promotion_id: 'Invalid input, promotion_id must be a number!'
-    };
-  }
+exports.validationDataPromotionSizes = async(data) => {
+    let result = null;
+    if (data.promotion_id === null || data.promotion_id === undefined) {
+        result = {
+            ...result,
+            promotion_id: 'promotion_id must be filled'
+        };
+    }
+    if (!data.promotion_id) {
+        result = {
+            ...result,
+            promotion_id: 'Invalid input, promotion_id must be a number!'
+        };
+    }
 
-  if (data.size_id === null || data.size_id === undefined) {
-    result = {
-      ...result,
-      size_id: 'size_id must be filled'
-    };
-  }
-  if (!data.size_id) {
-    result = {
-      ...result,
-      size_id: 'Invalid input, size_id must be a number!'
-    };
-  }
+    if (data.size_id === null || data.size_id === undefined) {
+        result = {
+            ...result,
+            size_id: 'size_id must be filled'
+        };
+    }
+    if (!data.size_id) {
+        result = {
+            ...result,
+            size_id: 'Invalid input, size_id must be a number!'
+        };
+    }
 
-  return result;
+    return result;
 };
 
 exports.validationPagination = (pagination) => {
@@ -574,58 +574,35 @@ exports.validationLogin = async(data) => {
     return result;
 };
 
+exports.validationSizeForProduct = async(data) => {
+    let result = null
+    console.log("masuk validasi size for product")
+    if (validator.isEmpty(data.product_id)) {
+        result = { product_id: 'product_id must be filled.' }
+    } else if (!validator.isNumeric(data.product_id)) {
+        result = { product_id: 'product_id must be a number.' }
+    } else {
+        const dataProduct = await productModel.getDataProduct(data.product_id)
+        if (dataProduct.length === 0) {
+            result = { product_id: 'Data product not found.' }
+        }
+    }
+
+    if (validator.isEmpty(data.size_id)) {
+        result = {...result, size_id: 'id size must be filled.' }
+    } else if (!validator.isNumeric(data.size_id)) {
+        result = {...result, size_id: 'Id size must be a number.' }
+    } else {
+        const dataSizeOfProduct = await sizeModel.getDataSize(data.size_id)
+        if (dataSizeOfProduct.length === 0) {
+            result = {...result, size_id: 'Data size not found.' }
+        }
+    }
+    return result
+}
+
 exports.validationRegister = async(data) => {
     let result = null;
-
-    if (!data.email || data.email === '') {
-        result = {
-            email: 'Email must be filled.'
-        };
-    } else {
-        const resultEmail = await userModel.getDataUerByEmail(data.email);
-        console.log(resultEmail);
-        if (resultEmail.length > 0) {
-            result = {
-                email: 'Email has already used.'
-            };
-        }
-    }
-
-    if (!data.phone || data.phone === '') {
-        result = {
-            ...result,
-            phone: 'phone must be filled.'
-        };
-    }
-
-    if (!data.password || data.password === '') {
-        result = {
-            ...result,
-            password: 'Password must be filled.'
-        };
-    }
-    return result;
-};
-
-exports.validationUser = async(data) => {
-    let result = null;
-
-    if (!data.email || data.email === '') {
-        result = {
-            email: 'Email must be filled.'
-        };
-    } else {
-        const resultEmail = await userModel.getDataUserByEmailUpdate(
-            data.email,
-            data.id
-        );
-        console.log(resultEmail);
-        if (resultEmail.length > 0) {
-            result = {
-                email: 'Email has already used.'
-            };
-        }
-    }
 
     if (!data.phone || data.phone === '') {
         result = {
