@@ -462,7 +462,7 @@ const getFavorites = async (request, response) => {
       order
     };
     const dataFavorite = await productModel.getDataFavorites(data);
-    console.log(dataFavorite);
+    // console.log(dataFavorite);
     if (dataFavorite.length > 0) {
       const result = await productModel.countDataFavorites(data);
       try {
@@ -474,7 +474,17 @@ const getFavorites = async (request, response) => {
           total: total,
           route: route
         };
-        return showApi.showResponseWithPagination(response, 'List Data Product Favorites', showApi.dataMapping(dataFavorite), pagination);
+
+        const dataFilter = {
+          name: request.query.name || null,
+          page: parseInt(request.query.page) || 1,
+          limit: parseInt(request.query.limit) || 5,
+          order: request.query.order || null
+        }
+
+        const pageInfo = showApi.pageInfoCreator(total, 'products/f/favorite', dataFilter);
+        return showApi.returningSuccess(response, 200, 'Data product retrieved successfully!', showApi.dataMapping(dataFavorite), pageInfo);
+        // return showApi.showResponseWithPagination(response, 'List Data Product Favorites', showApi.dataMapping(dataFavorite), pagination);
       } catch (err) {
         return showApi.showResponse(response, err.message, null, null, 500);
       }
