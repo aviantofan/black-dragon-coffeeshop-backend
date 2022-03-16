@@ -194,11 +194,13 @@ exports.validationDataDeliveryMethod = async (data) => {
   let result = null;
   if (data.name === null || data.name === '') {
     result = {
+      ...result,
       name: 'Name must be filled'
     };
   }
   if (!data.cost) {
     result = {
+      ...result,
       cost: 'Invalid input'
     };
   }
