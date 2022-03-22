@@ -6,7 +6,9 @@ const sizeModel = require('../models/size');
 const productHModel = require('../models/product');
 
 const getProductHistoriesByIdHistory = async (request, response) => {
-  const { idHistory } = request.params;
+  const {
+    idHistory
+  } = request.params;
 
   if (idHistory) {
     const result = await productHistoryModel.getDataHistoryProductByIdHistory(idHistory);
@@ -28,6 +30,8 @@ const insertProductHistory = async (request, response) => {
     size_id: request.body.size_id
   };
 
+  console.log(data);
+
   if (validator.isEmpty(data.product_id)) {
     return showApi.showResponse(response, 'id product must be filled.', null, null, 400);
   } else if (!validator.isNumeric(data.product_id)) {
@@ -44,7 +48,7 @@ const insertProductHistory = async (request, response) => {
   } else if (!validator.isNumeric(data.history_id)) {
     return showApi.showResponse(response, 'Id history must be a number.', null, null, 400);
   } else {
-    const getDataHistory = await historyModel.getDataHistory(data.history_id);
+    const getDataHistory = await historyModel.getDataHistoryById(data.history_id);
     if (getDataHistory.length === 0) {
       return showApi.showResponse(response, 'Data History not found.', null, null, 400);
     }
@@ -77,7 +81,9 @@ const insertProductHistory = async (request, response) => {
 };
 
 const updateDataProductHistory = async (request, response) => {
-  const { id } = request.params;
+  const {
+    id
+  } = request.params;
 
   if (id) {
     if (!isNaN(id)) {
@@ -148,7 +154,9 @@ const updateDataProductHistory = async (request, response) => {
 };
 
 const updatePatchProductHistory = async (request, response) => {
-  const { id } = request.params;
+  const {
+    id
+  } = request.params;
   if (id) {
     if (!isNaN(id)) {
       const getDataHistory = await productHistoryModel.getDataProductHistory(id);
@@ -219,7 +227,9 @@ const updatePatchProductHistory = async (request, response) => {
 };
 
 const deleteProductHistory = async (request, response) => {
-  const { id } = request.params;
+  const {
+    id
+  } = request.params;
 
   if (id) {
     if (!isNaN(id)) {
@@ -243,4 +253,10 @@ const deleteProductHistory = async (request, response) => {
   }
 };
 
-module.exports = { getProductHistoriesByIdHistory, insertProductHistory, updateDataProductHistory, updatePatchProductHistory, deleteProductHistory };
+module.exports = {
+  getProductHistoriesByIdHistory,
+  insertProductHistory,
+  updateDataProductHistory,
+  updatePatchProductHistory,
+  deleteProductHistory
+};

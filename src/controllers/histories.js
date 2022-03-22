@@ -154,6 +154,8 @@ exports.insertHistories = async (request, response) => {
       payment_method_id: 'number|required'
     };
 
+    // const datetime = new Date().toISOString().slice(0, 19).replace('T', ' ');
+
     const data = requestMapping(request.body, rules);
 
     const nullData = validation.noNullData(data, rules);
@@ -162,7 +164,9 @@ exports.insertHistories = async (request, response) => {
     }
 
     const authId = request.headers.user.id;
+
     const userProfile = await userModel.getUserProfile(authId);
+    console.log(userProfile);
 
     if (userProfile.length > 0) {
       data.user_profile_id = userProfile[0].id;
@@ -174,7 +178,7 @@ exports.insertHistories = async (request, response) => {
 
     data.payment_status = '0';
     data.delivery_status = '0';
-    console.log(data);
+    // console.log(data);
     const insertedHistories = await historyModel.insertDataHistory(data);
 
     if (insertedHistories.affectedRows > 0) {
@@ -201,11 +205,15 @@ exports.updateDataHistory = async (request, response) => {
     }
 
     const rules = {
-      payment_status: 'boolean|required',
-      delivery_status: 'boolean|required'
+      payment_status: 'boolean',
+      delivery_status: 'boolean'
     };
 
     const data = requestMapping(request.body, rules);
+
+    if (Object.keys(data).length < 1) {
+      return showApi.showResponse(response, 'Input minimal 1 data', null, null, 400);
+    }
 
     const nullData = validation.noNullData(data, rules);
     if (nullData) {

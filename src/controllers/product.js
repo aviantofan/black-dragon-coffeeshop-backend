@@ -4,6 +4,7 @@ const showApi = require('../helpers/showResponse');
 const upload = require('../helpers/upload').single('image');
 // const auth = require('../helpers/auth');
 const validation = require('../helpers/validation');
+const validator = require('validator');
 
 const {
   APP_URL
@@ -108,6 +109,8 @@ const getProducts = async (request, response) => {
     searchParam = `name=${name}`;
   }
 
+  console.log(filter);
+
   filledFilter.forEach((item) => {
     if (request.query[item]) {
       filter[item] = request.query[item];
@@ -146,7 +149,7 @@ const getProducts = async (request, response) => {
           total: total,
           route: route
         };
-        return showApi.showResponseWithPagination(response, 'List Data Product', dataProduct, pagination);
+        return showApi.showResponseWithPagination(response, 'List Data Product', showApi.dataMapping(dataProduct), pagination);
       } catch (err) {
         return showApi.showResponse(response, err.message, null, 500);
       }
@@ -163,9 +166,13 @@ const getProduct = async (request, response) => {
     id
   } = request.params;
 
+  if (!id || !validator.isInt(id)) {
+    return showApi.showResponse(response, 'Id not valid', null, null, 400);
+  }
+
   const result = await productModel.getDataProduct(id);
   if (result.length > 0) {
-    return showApi.showResponse(response, 'Detail Product', result[0]);
+    return showApi.showResponse(response, 'Detail Product', showApi.dataMapping(result)[0]);
   } else {
     return showApi.showResponse(response, 'Detail Product not found!', null, 404);
   }
@@ -181,10 +188,9 @@ const insertProduct = async (request, response) => {
       stocks: request.body.stocks,
       delivery_time_start: request.body.deliveryTimeStart,
       delivery_time_end: request.body.deliveryTimeEnd,
-      category_id: request.body.categoryId
+      category_id: request.body.categoryId,
+      price_product: request.body.priceProduct
     };
-
-    console.log(request.file);
 
     let errValidation = await validation.validationDataProducts(data);
     // let errValidation = validation.validationDataProducts(data);
@@ -249,6 +255,7 @@ const updateProduct = (request, response) => {
             delivery_time_end: request.body.deliveryTimeEnd,
             category_id: request.body.categoryId
           };
+
           let errValidation = await validation.validationDataProducts(data);
 
           if (request.file) {
@@ -407,6 +414,77 @@ const listProduct = async (request, response) => {
   }
 };
 
+const getFavorites = async (request, response) => {
+  let {
+    name,
+    page,
+    limit,
+    order
+  } = request.query;
+  name = name || '';
+  const filledFilter = ['history_id'];
+  const filter = {};
+  page = ((page !== null && page !== '') ? parseInt(page) : 1);
+  limit = ((limit !== null && limit !== '') ? parseInt(limit) : 5);
+  order = order || 'orderCount';
+  let pagination = {
+    page,
+    limit
+  };
+  let route = 'products?';
+  let searchParam = '';
+  if (name) {
+    searchParam = `name=${name}`;
+  }
+
+  filledFilter.forEach((item) => {
+    if (request.query[item]) {
+      filter[item] = request.query[item];
+      if (searchParam === '') {
+        searchParam += `${item}=${filter[item]}`;
+      } else {
+        searchParam += `&${item}=${filter[item]}`;
+      }
+    }
+  });
+  route += searchParam;
+
+  const errValidation = await validation.validationPagination(pagination);
+  if (errValidation === null) {
+    const offset = (page - 1) * limit;
+    console.log(offset);
+    const data = {
+      name,
+      filter,
+      limit,
+      offset,
+      order
+    };
+    const dataFavorite = await productModel.getDataFavorites(data);
+    console.log(dataFavorite);
+    if (dataFavorite.length > 0) {
+      const result = await productModel.countDataFavorites(data);
+      try {
+        const {
+          total
+        } = result[0];
+        pagination = {
+          ...pagination,
+          total: total,
+          route: route
+        };
+        return showApi.showResponseWithPagination(response, 'List Data Product Favorites', showApi.dataMapping(dataFavorite), pagination);
+      } catch (err) {
+        return showApi.showResponse(response, err.message, null, 500);
+      }
+    } else {
+      return showApi.showResponse(response, 'Data not found', null, null, 404);
+    }
+  } else {
+    showApi.showResponse(response, 'Pagination was not valid.', null, validation.validationPagination(pagination), 400);
+  }
+};
+
 module.exports = {
   getProducts,
   getProduct,
@@ -415,5 +493,6 @@ module.exports = {
   updatePatchProduct,
   deleteProduct,
   getFilterData,
-  listProduct
+  listProduct,
+  getFavorites
 };

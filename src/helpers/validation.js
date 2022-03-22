@@ -1,12 +1,14 @@
-const {
-  body,
-  validationResult
-} = require('express-validator');
+// const {
+//   body,
+//   validationResult
+// } = require('express-validator');
 const categoryModel = require('../models/category');
 const deliveryMethodModel = require('../models/deliveryMethod');
 const sizeModel = require('../models/size');
 const validator = require('validator');
 const productModel = require('../models/product');
+const promoModel = require('../models/promotion');
+const userModel = require('../models/userModel');
 
 exports.validationDataProducts = async (data) => {
   let result = null;
@@ -118,30 +120,91 @@ exports.validationDataProducts = async (data) => {
   return result;
 };
 
+exports.validationDataTax = async (data) => {
+  let result = null;
+  if (data.name === null || data.name === '') {
+    result = {
+      name: 'Name must be filled'
+    };
+  }
+  if (!data.value) {
+    result = {
+      value: 'Invalid input'
+    };
+  }
+  return result;
+};
+
 exports.validationDataPromotionDeliveryMethods = async (data) => {
   let result = null;
-  if (data.promotion_id == null || data.promotion_id === undefined) {
+  if (validator.isEmpty(data.promotion_id)) {
     result = {
       promotion_id: 'promotion_id must be filled'
     };
-  }
-  if (!data.promotion_id) {
+  } else if (!validator.isNumeric(data.promotion_id)) {
     result = {
       promotion_id: 'Invalid input, promotion_id must be a number!'
     };
+  } else {
+    const dataPromo = await promoModel.getDataPromotion(data.promotion_id);
+    if (dataPromo.length === 0) {
+      result = { promotion_id: 'promotion id not found.' };
+    }
+  }
+  // if (!data.promotion_id) {
+  //   result = {
+  //     promotion_id: 'Invalid input, promotion_id must be a number!'
+  //   };
+  // }
+
+  if (validator.isEmpty(data.delivery_method_id)) {
+    result = {
+      ...result,
+      delivery_method_id: 'delivery_method_id must be filled'
+    };
+  } else if (!validator.isNumeric(data.delivery_method_id)) {
+    result = {
+      ...result,
+      delivery_method_id: 'Invalid input, delivery_method_id must be a number!'
+    };
+  } else {
+    const dataDeliveryMethod = await deliveryMethodModel.getDataDeliveryMethod(data.delivery_method_id);
+    if (dataDeliveryMethod.length === 0) {
+      result = { ...result, delivery_method_id: 'delivery method id not found.' };
+    }
   }
 
-  if (data.delivery_method_id == null || data.delivery_method_id === undefined) {
+  return result;
+};
+
+exports.validationDataSize = async (data) => {
+  let result = null;
+  if (data.name === null || data.name === '') {
     result = {
-      delivery_method_id: 'promotion_id must be filled'
+      name: 'Name must be filled'
     };
   }
-  if (!data.delivery_method_id) {
+  if (!data.extra_price) {
     result = {
-      delivery_method_id: 'Invalid input, promotion_id must be a number!'
+      name: 'Invalid input'
     };
   }
 
+  return result;
+};
+
+exports.validationDataDeliveryMethod = async (data) => {
+  let result = null;
+  if (data.name === null || data.name === '') {
+    result = {
+      name: 'Name must be filled'
+    };
+  }
+  if (!data.cost) {
+    result = {
+      cost: 'Invalid input'
+    };
+  }
   return result;
 };
 
@@ -610,6 +673,60 @@ exports.validationUser = async (data) => {
       ...result,
       birthdate: 'Birthdate must be filled.'
     };
+  }
+  return result;
+};
+
+exports.validationDataPromotion = (data) => {
+  let result = null;
+  const { name, code, description, normal_price, discount_value, available_start_at, available_end_at } = data;
+  if (validator.isEmpty(name)) {
+    result = {
+      name: 'Name must be filled.'
+    };
+  }
+  if (validator.isEmpty(code)) {
+    result = {
+      ...result,
+      code: 'Code must be filled!'
+    };
+  }
+  if (validator.isEmpty(description)) {
+    result = {
+      ...result,
+      description: 'Description must be filled!'
+    };
+  }
+  if (validator.isEmpty(normal_price)) {
+    result = {
+      ...result,
+      normal_price: 'Normal price must be filled!'
+    };
+  } else if (!validator.isNumeric(normal_price)) {
+    result = {
+      ...result,
+      normal_price: 'Normal price must be a number!'
+    };
+  }
+  if (validator.isEmpty(discount_value)) {
+    result = {
+      ...result,
+      discount: 'Discount value must be filled!'
+    };
+  } else if (!validator.isNumeric(data.discount_value)) {
+    result = { ...result, discount_value: 'Discount value must be a number!' };
+  }
+
+  if (validator.isEmpty(available_start_at)) {
+    result = { ...result, available_start_at: 'Available start at must be filled!' };
+  } else if (!validator.isDate(available_start_at)) {
+    result = { ...result, available_start_at: 'Available start at must be a date!' };
+  }
+
+  if (validator.isEmpty(available_end_at)) {
+    result = { ...result, available_end_at: 'Available end at must be filled!' };
+  } else if (!validator.isDate(available_end_at)) {
+    result = { ...result, available_end_at: 'Available end at must be a date!' };
   }
   return result;
 };

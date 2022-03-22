@@ -1,6 +1,7 @@
 const histories = require('express').Router();
 const {
-  verifyUser
+  verifyUser,
+  verifyAdmin
 } = require('../middlewares/auth');
 
 const {
@@ -14,7 +15,7 @@ const {
 histories.get('/', verifyUser, getHistories);
 histories.get('/:id', verifyUser, getHistoriesById);
 histories.post('/', verifyUser, insertHistories);
-histories.patch('/:id', verifyUser, updateDataHistory);
-histories.delete('/:id', verifyUser, deleteDataHistory);
+histories.patch('/:id', verifyAdmin, updateDataHistory);
+histories.delete('/:id', verifyAdmin, deleteDataHistory);
 
 module.exports = histories;

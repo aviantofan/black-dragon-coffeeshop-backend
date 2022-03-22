@@ -16,7 +16,7 @@ exports.getDataPromotionSizes = (data) => new Promise((resolve, reject) => {
     }
   });
 
-  const query = db.query(`SELECT pr.name AS promotion, s.name AS size
+  const query = db.query(`SELECT ps.id AS id, pr.name AS promotion, s.name AS size
     FROM promotion_sizes ps JOIN promotions pr ON pr.id = ps.promotion_id 
     JOIN sizes s ON s.id = ps.size_id
     where s.name like '%${data.name}%' ${resultFillter}
